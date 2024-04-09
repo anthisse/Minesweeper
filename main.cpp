@@ -26,15 +26,24 @@ sf::Text initializeNameEntryText(const sf::RenderWindow &window, const sf::Font 
 
 sf::Text fillNameEntryField(const sf::RenderWindow &window, const sf::Font &font, std::string name);
 
+std::string renderWelcomeWindow(sf::RenderWindow &window);
+
 int main() {
     std::vector<int> gameParameters = readConfig();
     int colCount = gameParameters[0];
     int rowCount = gameParameters[1];
     int mineCount = gameParameters[2];
 
-    // Render the welcome menu
     // Window object
     sf::RenderWindow window(sf::VideoMode(colCount * 32, rowCount * 32 + 100), "Minesweeper");
+
+    // Render the welcome menu
+    std::string name = renderWelcomeWindow(window);
+    printf("name: %s", name.c_str());
+    return 0;
+}
+
+std::string renderWelcomeWindow(sf::RenderWindow &window) {
     // Font text
     sf::Font font;
     if (!font.loadFromFile("files/font.ttf")) {
@@ -42,40 +51,52 @@ int main() {
         throw file_read_exception("Failed to load font!");
     }
 
+    // Text fields
     sf::Text welcomeText = initializeWelcomeText(window, font);
     sf::Text nameEntryText = initializeNameEntryText(window, font);
     sf::Text nameEntryField = fillNameEntryField(window, font, "");
-
     std::string name;
 
+    // Event loop
     while (window.isOpen()) {
         sf::Event event{};
         while (window.pollEvent(event)) {
+            // Close the window if closed by the OS
             if (event.type == sf::Event::Closed) {
                 window.close();
             }
+            // TODO Swap to main game screen once w'Enter' is pressed
+            if (sf::Keyboard::isKeyPressed(sf::Keyboard::Enter)) {
+                // TODO Swap to main game screen
+                return name;
+            }
+            // Get name input
             if (event.type == sf::Event::TextEntered) {
-                if (!std::isalpha(static_cast<char>(event.text.unicode)) || name.size() == 10) {
+                // Don't add the character if it's not alphanumeric or if the name's length is >= 10
+                if (!isalpha(static_cast<char>(event.text.unicode)) || name.size() >= 10) {
                     continue;
                 }
+                // Append the character to the name
                 name += static_cast<char>(event.text.unicode);
+                // Force title-case
+                name[0] = static_cast<char>(toupper(name[0]));
                 for (int i = 1; i < name.size(); i++) {
-                    name[i] = static_cast<char>(std::tolower(name[i]));
+                    name[i] = static_cast<char>(tolower(name[i]));
                 }
-                name[0] = static_cast<char>(std::toupper(name[0]));
+                // Render the name
                 nameEntryField = fillNameEntryField(window, font, name);
             }
         }
 
+        // Draw window elements
         // FIXME Change back to blue before submission!
         window.clear(sf::Color(120, 120, 120));
         window.draw(welcomeText);
         window.draw(nameEntryText);
         window.draw(nameEntryField);
         window.display();
-        printf("The name of the player is: %s\n", name.c_str());
     }
-    return 0;
+    return name;
 }
 
 std::vector<int> readConfig() {
