@@ -22,6 +22,8 @@ std::vector<int> readConfig();
 
 sf::Text initializeWelcomeText(const sf::RenderWindow &window, const sf::Font &font);
 
+sf::Text initializeNameEntryText(const sf::RenderWindow &window, const sf::Font &font);
+
 int main() {
     std::vector<int> gameParameters = readConfig();
     int colCount = gameParameters[0];
@@ -39,6 +41,7 @@ int main() {
     }
 
     sf::Text welcomeText = initializeWelcomeText(window, font);
+    sf::Text nameEntryText = initializeNameEntryText(window, font);
 
     while (window.isOpen()) {
         sf::Event event{};
@@ -47,27 +50,14 @@ int main() {
                 window.close();
             }
         }
+
         // FIXME Change back to blue before submission!
         window.clear(sf::Color(120, 120, 120));
         window.draw(welcomeText);
+        window.draw(nameEntryText);
         window.display();
     }
     return 0;
-}
-
-sf::Text initializeWelcomeText(const sf::RenderWindow &window, const sf::Font &font) {
-    sf::Text welcomeText;
-    welcomeText.setFont(font);
-    welcomeText.setString("WELCOME TO MINESWEEPER!");
-    welcomeText.setStyle(sf::Text::Underlined | sf::Text::Bold);
-    welcomeText.setFillColor(sf::Color::White);
-    welcomeText.setCharacterSize(24);
-
-    sf::FloatRect textRect = welcomeText.getLocalBounds();
-    welcomeText.setOrigin(textRect.left + textRect.width / 2.0f, textRect.top + textRect.height / 2.0f);
-    welcomeText.setPosition(static_cast<float>(window.getSize().x) / 2,
-                            static_cast<float>(window.getSize().y) / 2 - 150);
-    return welcomeText;
 }
 
 std::vector<int> readConfig() {
@@ -107,4 +97,38 @@ std::vector<int> readConfig() {
     std::vector<int> vec = {colCount, rowCount, mineCount};
     return vec;
 
+}
+
+sf::Text initializeWelcomeText(const sf::RenderWindow &window, const sf::Font &font) {
+    sf::Text welcomeText;
+    welcomeText.setFont(font);
+    welcomeText.setString("WELCOME TO MINESWEEPER!");
+    welcomeText.setStyle(sf::Text::Underlined | sf::Text::Bold);
+    welcomeText.setFillColor(sf::Color::White);
+    welcomeText.setCharacterSize(24);
+
+    sf::FloatRect welcomeTextRect = welcomeText.getLocalBounds();
+    welcomeText.setOrigin(welcomeTextRect.left + welcomeTextRect.width / 2.0f,
+                          welcomeTextRect.top + welcomeTextRect.height / 2.0f);
+    welcomeText.setPosition(static_cast<float>(window.getSize().x) / 2.0f,
+                            static_cast<float>(window.getSize().y) / 2.0f - 150);
+    return welcomeText;
+}
+
+sf::Text initializeNameEntryText(const sf::RenderWindow &window, const sf::Font &font) {
+    sf::Text nameEntryText;
+    nameEntryText.setFont(font);
+    nameEntryText.setString("Enter your name:");
+    nameEntryText.setStyle(sf::Text::Bold);
+    nameEntryText.setFillColor(sf::Color::White);
+    nameEntryText.setCharacterSize(20);
+
+    sf::FloatRect nameEntryTextRect = nameEntryText.getLocalBounds();
+    nameEntryText.setOrigin(nameEntryTextRect.left + nameEntryTextRect.width / 2.0f,
+                            nameEntryTextRect.top + nameEntryTextRect.height / 2.0f);
+
+    nameEntryText.setPosition(static_cast<float>(window.getSize().x) / 2.0f,
+                              static_cast<float>(window.getSize().y) / 2.0f - 75);
+
+    return nameEntryText;
 }
