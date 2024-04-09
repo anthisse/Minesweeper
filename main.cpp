@@ -24,6 +24,8 @@ sf::Text initializeWelcomeText(const sf::RenderWindow &window, const sf::Font &f
 
 sf::Text initializeNameEntryText(const sf::RenderWindow &window, const sf::Font &font);
 
+sf::Text fillNameEntryField(const sf::RenderWindow &window, const sf::Font &font, std::string name);
+
 int main() {
     std::vector<int> gameParameters = readConfig();
     int colCount = gameParameters[0];
@@ -42,6 +44,9 @@ int main() {
 
     sf::Text welcomeText = initializeWelcomeText(window, font);
     sf::Text nameEntryText = initializeNameEntryText(window, font);
+    sf::Text nameEntryField = fillNameEntryField(window, font, "");
+
+    std::string name;
 
     while (window.isOpen()) {
         sf::Event event{};
@@ -49,13 +54,26 @@ int main() {
             if (event.type == sf::Event::Closed) {
                 window.close();
             }
+            if (event.type == sf::Event::TextEntered) {
+                if (!std::isalpha(static_cast<char>(event.text.unicode)) || name.size() == 10) {
+                    continue;
+                }
+                name += static_cast<char>(event.text.unicode);
+                for (int i = 1; i < name.size(); i++) {
+                    name[i] = static_cast<char>(std::tolower(name[i]));
+                }
+                name[0] = static_cast<char>(std::toupper(name[0]));
+                nameEntryField = fillNameEntryField(window, font, name);
+            }
         }
 
         // FIXME Change back to blue before submission!
         window.clear(sf::Color(120, 120, 120));
         window.draw(welcomeText);
         window.draw(nameEntryText);
+        window.draw(nameEntryField);
         window.display();
+        printf("The name of the player is: %s\n", name.c_str());
     }
     return 0;
 }
@@ -131,4 +149,24 @@ sf::Text initializeNameEntryText(const sf::RenderWindow &window, const sf::Font 
                               static_cast<float>(window.getSize().y) / 2.0f - 75);
 
     return nameEntryText;
+}
+
+sf::Text fillNameEntryField(const sf::RenderWindow &window, const sf::Font &font, std::string name) {
+    sf::Text nameEntryField;
+    nameEntryField.setFont(font);
+    name += '|';
+    nameEntryField.setString(name);
+    nameEntryField.setStyle(sf::Text::Bold);
+    nameEntryField.setFillColor(sf::Color::White);
+    nameEntryField.setCharacterSize(20);
+
+    sf::FloatRect nameEntryFieldRect = nameEntryField.getLocalBounds();
+    nameEntryField.setOrigin(nameEntryFieldRect.left + nameEntryFieldRect.width / 2.0f,
+                             nameEntryFieldRect.top + nameEntryFieldRect.height / 2.0f);
+
+    nameEntryField.setPosition(static_cast<float>(window.getSize().x) / 2.0f,
+                              static_cast<float>(window.getSize().y) / 2.0f - 45);
+
+    return nameEntryField;
+
 }
