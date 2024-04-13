@@ -30,6 +30,8 @@ public:
 
     bool isFlagged() const;
 
+    std::pair<int, int> getCoords() const;
+
     std::vector<Tile *> getNeighbors() const;
 
     void setMine(bool mine);

@@ -36,43 +36,47 @@ int main() {
     int rowCount = gameParameters[1];
     int mineCount = gameParameters[2];
 
+    // TODO
+    mineCount = 150;
     std::pair<int, int> dimensions = {colCount, rowCount};
 
     printf("dimensions: %d, %d\n", dimensions.first, dimensions.second);
 
     // Window object
-    sf::RenderWindow window(sf::VideoMode(colCount * 32, rowCount * 32 + 100), "Minesweeper");
+//    sf::RenderWindow window(sf::VideoMode(colCount * 32, rowCount * 32 + 100), "Minesweeper");
 
-    // Render the welcome menu
-    std::string name = renderWelcomeWindow(window);
+    // TODO Render the welcome menu
+//    std::string name = renderWelcomeWindow(window);
 
     Board board = Board(dimensions, mineCount);
 
     while (true) {
         int row;
         int column;
-        std::pair<int, int> coords = {column, row};
         std::cout << "row: ";
         std::cin >> row;
         std::cout << std::endl << "column: ";
         std::cin >> column;
+        std::pair<int, int> coords = {column, row};
         std::cout << std::endl << "The mine at that location has these neighbors: ";
+        std::cout << "column: " << coords.first << ", row: " << coords.second << "\n";
         Tile t = board.getTile(coords);
-        Tile* neighbors = t.getNeighbors();
-        // FIXME returns nullptr every time!
-        if (neighbors == nullptr) {
-            std::cout << "it's a nullptr!" << std::endl;
+        std::vector<Tile*> neighbors = t.getNeighbors();
+        for (int n = 0; n < 8; n++) {
+            std::cout << "n = " << n << "\n";
+            if (neighbors[n]) {
+                std::cout << "Got neighbor at " << neighbors[n]->getCoords().first << ", " << neighbors[n]->getCoords().second << "\n";
+                if (neighbors[n]->isMine()) {
+                    std::cout << "true\n";
+                } else {
+                    std::cout << "false\n";
+                }
+            } else {
+                std::cout << "nullptr!\n";
+            }
         }
-        std::cout << neighbors[0].isMine() << std::endl;
-        std::cout << neighbors[1].isMine() << std::endl;
-        std::cout << neighbors[2].isMine() << std::endl;
-        std::cout << neighbors[3].isMine() << std::endl;
-        std::cout << neighbors[4].isMine() << std::endl;
-        std::cout << neighbors[5].isMine() << std::endl;
-        std::cout << neighbors[6].isMine() << std::endl;
-        std::cout << neighbors[7].isMine() << std::endl;
-        std::cout << neighbors[8].isMine() << std::endl;
         std::cout << "--------------------------\n\n";
+        std::cout << "Setting column " << coords.first << " and row " << coords.second << "\n";
         board.setTileFlagged(coords, true);
         board.printBoard();
     }

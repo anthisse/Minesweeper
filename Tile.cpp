@@ -1,3 +1,4 @@
+#include <iostream>
 #include "Tile.h"
 
 // Default constructor
@@ -9,14 +10,12 @@ Tile::Tile() {
 }
 
 // Fully parameterized constructor
-Tile::Tile(std::pair<int, int> coords, bool hasMine, bool isRevealed, bool isFlagged, Tile* neighbors[8]) {
+Tile::Tile(std::pair<int, int> coords, bool hasMine, bool isRevealed, bool isFlagged, std::vector<Tile *>& neighbors) {
     this->coords = std::move(coords);
     this->hasMine = hasMine;
     this->isVisible = isRevealed;
     this->hasFlag = isFlagged;
-    for (int i = 0; i < 8; i++) {
-        this->neighbors[i] = neighbors[i];
-    }
+    this->neighbors = std::move(neighbors);
 }
 
 // Parameterized constructor with position and neighbors
@@ -25,7 +24,7 @@ Tile::Tile(std::pair<int, int> coords, std::vector<Tile *>& neighbors) {
     this->hasMine = false;
     this->isVisible = false;
     this->hasFlag = false;
-    this->neighbors = neighbors;
+    this->neighbors = std::move(neighbors);
 }
 
 Tile::Tile(std::pair<int, int> coords) {
@@ -48,7 +47,12 @@ bool Tile::isFlagged() const {
 }
 
 std::vector<Tile *> Tile::getNeighbors() const {
+    std::cout << "col: " << coords.first << " row: " << coords.second << "\n";
     return this->neighbors;
+}
+
+std::pair<int, int> Tile::getCoords() const {
+    return this->coords;
 }
 
 void Tile::setMine(bool mine) {
