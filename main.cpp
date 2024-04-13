@@ -3,16 +3,18 @@
 #include <fstream>
 #include <string>
 #include <exception>
+#include <utility>
+#include "Board.h"
 
 // Bad file read exception
 class file_read_exception : public std::exception {
 private:
     std::string message;
 public:
-    explicit file_read_exception(const char *msg) : message(msg) {}
+    explicit file_read_exception(const char* msg) : message(msg) {}
 
     // Override the what() method
-    const char *what() const noexcept override {
+    const char* what() const noexcept override {
         return message.c_str();
     }
 };
@@ -20,13 +22,13 @@ public:
 // todo Perhaps this data structure isn't quite the right thing
 std::vector<int> readConfig();
 
-sf::Text initializeWelcomeText(const sf::RenderWindow &window, const sf::Font &font);
+sf::Text initializeWelcomeText(const sf::RenderWindow& window, const sf::Font& font);
 
-sf::Text initializeNameEntryText(const sf::RenderWindow &window, const sf::Font &font);
+sf::Text initializeNameEntryText(const sf::RenderWindow& window, const sf::Font& font);
 
-sf::Text fillNameEntryField(const sf::RenderWindow &window, const sf::Font &font, std::string name);
+sf::Text fillNameEntryField(const sf::RenderWindow& window, const sf::Font& font, std::string name);
 
-std::string renderWelcomeWindow(sf::RenderWindow &window);
+std::string renderWelcomeWindow(sf::RenderWindow& window);
 
 int main() {
     std::vector<int> gameParameters = readConfig();
@@ -34,16 +36,51 @@ int main() {
     int rowCount = gameParameters[1];
     int mineCount = gameParameters[2];
 
+    std::pair<int, int> dimensions = {colCount, rowCount};
+
+    printf("dimensions: %d, %d\n", dimensions.first, dimensions.second);
+
     // Window object
     sf::RenderWindow window(sf::VideoMode(colCount * 32, rowCount * 32 + 100), "Minesweeper");
 
     // Render the welcome menu
     std::string name = renderWelcomeWindow(window);
-    printf("name: %s", name.c_str());
-    return 0;
+
+    Board board = Board(dimensions, mineCount);
+
+    while (true) {
+        int row;
+        int column;
+        std::pair<int, int> coords = {column, row};
+        std::cout << "row: ";
+        std::cin >> row;
+        std::cout << std::endl << "column: ";
+        std::cin >> column;
+        std::cout << std::endl << "The mine at that location has these neighbors: ";
+        Tile t = board.getTile(coords);
+        Tile* neighbors = t.getNeighbors();
+        // FIXME returns nullptr every time!
+        if (neighbors == nullptr) {
+            std::cout << "it's a nullptr!" << std::endl;
+        }
+        std::cout << neighbors[0].isMine() << std::endl;
+        std::cout << neighbors[1].isMine() << std::endl;
+        std::cout << neighbors[2].isMine() << std::endl;
+        std::cout << neighbors[3].isMine() << std::endl;
+        std::cout << neighbors[4].isMine() << std::endl;
+        std::cout << neighbors[5].isMine() << std::endl;
+        std::cout << neighbors[6].isMine() << std::endl;
+        std::cout << neighbors[7].isMine() << std::endl;
+        std::cout << neighbors[8].isMine() << std::endl;
+        std::cout << "--------------------------\n\n";
+        board.setTileFlagged(coords, true);
+        board.printBoard();
+    }
+    // Load the board
+    return EXIT_SUCCESS;
 }
 
-std::string renderWelcomeWindow(sf::RenderWindow &window) {
+std::string renderWelcomeWindow(sf::RenderWindow& window) {
     // Font text
     sf::Font font;
     if (!font.loadFromFile("files/font.ttf")) {
@@ -65,7 +102,7 @@ std::string renderWelcomeWindow(sf::RenderWindow &window) {
             if (event.type == sf::Event::Closed) {
                 window.close();
             }
-            // TODO Swap to main game screen once w'Enter' is pressed
+            // TODO Swap to main game screen once 'Enter' is pressed
             if (sf::Keyboard::isKeyPressed(sf::Keyboard::Enter)) {
                 // TODO Swap to main game screen
                 return name;
@@ -124,7 +161,7 @@ std::vector<int> readConfig() {
         colCount = std::stoi(colCountString);
         rowCount = std::stoi(rowCountString);
         mineCount = std::stoi(mineCountString);
-    } catch (std::invalid_argument &e) {
+    } catch (std::invalid_argument& e) {
         configFile.close();
         throw file_read_exception("File config.cfg has invalid contents!");
     }
@@ -138,7 +175,7 @@ std::vector<int> readConfig() {
 
 }
 
-sf::Text initializeWelcomeText(const sf::RenderWindow &window, const sf::Font &font) {
+sf::Text initializeWelcomeText(const sf::RenderWindow& window, const sf::Font& font) {
     sf::Text welcomeText;
     welcomeText.setFont(font);
     welcomeText.setString("WELCOME TO MINESWEEPER!");
@@ -154,7 +191,7 @@ sf::Text initializeWelcomeText(const sf::RenderWindow &window, const sf::Font &f
     return welcomeText;
 }
 
-sf::Text initializeNameEntryText(const sf::RenderWindow &window, const sf::Font &font) {
+sf::Text initializeNameEntryText(const sf::RenderWindow& window, const sf::Font& font) {
     sf::Text nameEntryText;
     nameEntryText.setFont(font);
     nameEntryText.setString("Enter your name:");
@@ -172,7 +209,7 @@ sf::Text initializeNameEntryText(const sf::RenderWindow &window, const sf::Font 
     return nameEntryText;
 }
 
-sf::Text fillNameEntryField(const sf::RenderWindow &window, const sf::Font &font, std::string name) {
+sf::Text fillNameEntryField(const sf::RenderWindow& window, const sf::Font& font, std::string name) {
     sf::Text nameEntryField;
     nameEntryField.setFont(font);
     name += '|';
@@ -186,7 +223,7 @@ sf::Text fillNameEntryField(const sf::RenderWindow &window, const sf::Font &font
                              nameEntryFieldRect.top + nameEntryFieldRect.height / 2.0f);
 
     nameEntryField.setPosition(static_cast<float>(window.getSize().x) / 2.0f,
-                              static_cast<float>(window.getSize().y) / 2.0f - 45);
+                               static_cast<float>(window.getSize().y) / 2.0f - 45);
 
     return nameEntryField;
 

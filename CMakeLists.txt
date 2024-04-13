@@ -3,7 +3,11 @@ project(Minesweeper)
 
 set(CMAKE_CXX_STANDARD 11)
 
-add_executable(Minesweeper main.cpp)
+add_executable(Minesweeper main.cpp
+        Tile.cpp
+        Tile.h
+        Board.cpp
+        Board.h)
 
 set(SFML_STATIC_LIBRARIES TRUE)
 set(SFML_DIR C:/SFML/lib/cmake/SFML)
