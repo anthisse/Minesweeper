@@ -30,6 +30,10 @@ sf::Text fillNameEntryField(const sf::RenderWindow& window, const sf::Font& font
 
 std::string renderWelcomeWindow(sf::RenderWindow& window);
 
+void renderBoardWindow(sf::RenderWindow& window, Board& board);
+
+std::vector<sf::Texture> loadTextures();
+
 int main() {
     std::vector<int> gameParameters = readConfig();
     int colCount = gameParameters[0];
@@ -42,46 +46,99 @@ int main() {
 
     printf("dimensions: %d, %d\n", dimensions.first, dimensions.second);
 
-    // Window object
-//    sf::RenderWindow window(sf::VideoMode(colCount * 32, rowCount * 32 + 100), "Minesweeper");
+    // welcomeWindow object
+    sf::RenderWindow welcomeWindow(sf::VideoMode(
+            colCount * 32, rowCount * 32 + 100), "Minesweeper");
 
-    // TODO Render the welcome menu
-//    std::string name = renderWelcomeWindow(window);
+    // Render the welcome menu
+    std::string name = renderWelcomeWindow(welcomeWindow);
 
+    // If no name was entered, then the close button must have been pressed; exit now
+    if (name.empty()) {
+        printf("no name entered, must have clicked the X\n");
+        return EXIT_SUCCESS;
+    }
+
+    // After closing the welcome menu create the game window
+    welcomeWindow.close();
+    sf::RenderWindow gameWindow(sf::VideoMode(
+            colCount * 32, rowCount * 32 + 100), "Minesweeper");
+
+    // Create a board
     Board board = Board(dimensions, mineCount);
 
-    while (true) {
-        int row;
-        int column;
-        std::cout << "row: ";
-        std::cin >> row;
-        std::cout << std::endl << "column: ";
-        std::cin >> column;
-        std::pair<int, int> coords = {column, row};
-        std::cout << std::endl << "The mine at that location has these neighbors: ";
-        std::cout << "column: " << coords.first << ", row: " << coords.second << "\n";
-        Tile t = board.getTile(coords);
-        std::vector<Tile*> neighbors = t.getNeighbors();
-        for (int n = 0; n < 8; n++) {
-            std::cout << "n = " << n << "\n";
-            if (neighbors[n]) {
-                std::cout << "Got neighbor at " << neighbors[n]->getCoords().first << ", " << neighbors[n]->getCoords().second << "\n";
-                if (neighbors[n]->isMine()) {
-                    std::cout << "true\n";
-                } else {
-                    std::cout << "false\n";
-                }
-            } else {
-                std::cout << "nullptr!\n";
-            }
-        }
-        std::cout << "--------------------------\n\n";
-        std::cout << "Setting column " << coords.first << " and row " << coords.second << "\n";
-        board.setTileFlagged(coords, true);
-        board.printBoard();
-    }
+    renderBoardWindow(gameWindow, board);
     // Load the board
     return EXIT_SUCCESS;
+}
+
+sf::Texture loadTexture(const std::string& fileName) {
+    sf::Texture texture;
+    if (!texture.loadFromFile(fileName)) {
+        std::cerr << "Game texture " << fileName << " is missing!\n";
+    }
+    return texture;
+}
+
+// Load textures for sprites
+std::vector<sf::Texture> loadTextures() {
+    std::vector<sf::Texture> textures;
+    textures.push_back(loadTexture("files/images/debug.png"));
+    textures.push_back(loadTexture("files/images/digits.png"));
+    textures.push_back(loadTexture("files/images/face_happy.png"));
+    textures.push_back(loadTexture("files/images/face_lose.png"));
+    textures.push_back(loadTexture("files/images/face_win.png"));
+    textures.push_back(loadTexture("files/images/flag.png"));
+    textures.push_back(loadTexture("files/images/leaderboard.png"));
+    textures.push_back(loadTexture("files/images/mine.png"));
+    textures.push_back(loadTexture("files/images/number_1.png"));
+    textures.push_back(loadTexture("files/images/number_2.png"));
+    textures.push_back(loadTexture("files/images/number_3.png"));
+    textures.push_back(loadTexture("files/images/number_4.png"));
+    textures.push_back(loadTexture("files/images/number_5.png"));
+    textures.push_back(loadTexture("files/images/number_6.png"));
+    textures.push_back(loadTexture("files/images/number_7.png"));
+    textures.push_back(loadTexture("files/images/number_8.png"));
+    textures.push_back(loadTexture("files/images/pause.png"));
+    textures.push_back(loadTexture("files/images/play.png"));
+    textures.push_back(loadTexture("files/images/tile_hidden.png"));
+    textures.push_back(loadTexture("files/images/tile_revealed.png"));
+    return textures;
+}
+
+// Main game window
+void renderBoardWindow(sf::RenderWindow& window, Board& board) {
+    std::vector<sf::Texture> textures = loadTextures();
+    enum textureIndices {
+        debug, digits, happy, lose, win, flag, lb, mine,
+        num1, num2, num3, num4, num5, num6, num7, num8, pause, play, hidden, revealed
+    };
+
+    std::vector<sf::Texture> tileTextures = {textures[flag], textures[mine], textures[num1], textures[num2],
+                                             textures[num3], textures[num4], textures[num5], textures[num6],
+                                             textures[num7], textures[num8], textures[hidden], textures[revealed]};
+
+    board.print();
+
+    // TODO something is weird about this. It seems to render twice.
+    board.displayBoard(window, tileTextures);
+
+    while (window.isOpen()) {
+
+        sf::Event event{};
+        while (window.pollEvent(event)) {
+            // Close the window if closed by the OS
+            if (event.type == sf::Event::Closed) {
+                window.close();
+            }
+            if (event.type == sf::Event::MouseButtonPressed) {
+                printf("lmb pressed\n");
+                std::pair<int,int>foo = {0,0};
+                board.setTileFlagged(foo, true);
+                board.displayBoard(window, tileTextures);
+            }
+        }
+    }
 }
 
 std::string renderWelcomeWindow(sf::RenderWindow& window) {
@@ -106,9 +163,9 @@ std::string renderWelcomeWindow(sf::RenderWindow& window) {
             if (event.type == sf::Event::Closed) {
                 window.close();
             }
-            // TODO Swap to main game screen once 'Enter' is pressed
-            if (sf::Keyboard::isKeyPressed(sf::Keyboard::Enter)) {
-                // TODO Swap to main game screen
+
+            // Return once a name is submitted
+            if (sf::Keyboard::isKeyPressed(sf::Keyboard::Enter) && !name.empty()) {
                 return name;
             }
             // Get name input

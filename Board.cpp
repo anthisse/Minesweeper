@@ -7,14 +7,11 @@
 
 Board::Board(std::pair<int, int> dimensions, int mineCount) {
     this->dimensions = std::move(dimensions);
-    printf("In constructor: dimensions.first (x / columns) = %d, dimensions.second (y / rows) = %d\n", dimensions.first,
-           dimensions.second);
     this->mineCount = mineCount;
     initializeBoard();
 }
 
 void Board::populateBoard() {
-    printf("Laying mines\n");
     // Seed the random number generator
     std::random_device rd;
 //    std::mt19937 rng(std::chrono::system_clock::now().time_since_epoch().count());
@@ -53,10 +50,6 @@ void Board::populateBoard() {
             numTiles++;
         }
     }
-    printBoard();
-    printf("%d rows\n", dimensions.first);
-    printf("%d columns\n", dimensions.second);
-    printf("%d tiles\n", numTiles);
 }
 
 // Initialize an empty board
@@ -82,16 +75,16 @@ void Board::initializeBoard() {
             neighbors = {nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr};
             coords = {col, row};
             neighbors[TOP_LEFT] = (col > 0 && row > 0) ? &board[col - 1][row - 1] : nullptr;
-            neighbors[TOP_MID] = (row > 0) ? &board[col][row - 1] : nullptr; //
-            neighbors[TOP_RIGHT] = (col < dimensions.first - 1 && row > 0) ? &board[col + 1][row - 1] : nullptr; //
+            neighbors[TOP_MID] = (row > 0) ? &board[col][row - 1] : nullptr;
+            neighbors[TOP_RIGHT] = (col < dimensions.first - 1 && row > 0) ? &board[col + 1][row - 1] : nullptr;
             // Middle colVector
             neighbors[MID_LEFT] = (col > 0) ? &board[col - 1][row] : nullptr;
-            neighbors[MID_RIGHT] = (col < dimensions.first - 1) ? &board[col + 1][row] : nullptr; //
+            neighbors[MID_RIGHT] = (col < dimensions.first - 1) ? &board[col + 1][row] : nullptr;
             // Bottom colVector
             neighbors[BOT_LEFT] = (col > 0 && row < dimensions.second) ? &board[col - 1][row + 1] : nullptr;
-            neighbors[BOT_MID] = (row < dimensions.second) ? &board[col][row + 1] : nullptr; //
+            neighbors[BOT_MID] = (row < dimensions.second) ? &board[col][row + 1] : nullptr;
             neighbors[BOT_RIGHT] = (col < dimensions.first && row < dimensions.second) ? &board[col + 1][row + 1]
-                                                                                       : nullptr; //
+                                                                                       : nullptr;
             Tile tile = Tile(coords, neighbors);
             colVector.push_back(tile);
         }
@@ -100,7 +93,6 @@ void Board::initializeBoard() {
     }
     board = std::move(newBoard);
     populateBoard();
-    printBoard();
 }
 
 std::vector<std::vector<Tile>> Board::getBoard() {
@@ -120,7 +112,9 @@ Tile Board::getTile(std::pair<int, int> coords) {
     return board[column][row];
 }
 
-void Board::printBoard() {
+
+// FIXME since columns are first then rows, this is anti-clockwise rotated 90 degrees!
+void Board::print() {
     int i = 0;
     std::cout << "  0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5\n";
     for (auto& col: board) {
@@ -139,3 +133,11 @@ void Board::printBoard() {
     }
 }
 
+void Board::displayBoard(sf::RenderWindow& window, std::vector<sf::Texture>& textures) {
+    for (const auto& col : board) {
+        for (const auto& tile : col) {
+            tile.renderTile(window, textures);
+        }
+    }
+    window.display();
+}

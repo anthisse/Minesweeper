@@ -3,6 +3,7 @@
 
 #include <vector>
 #include <utility> // Includes std::pair
+#include <SFML/Graphics.hpp>
 
 class Tile {
 private:
@@ -10,17 +11,20 @@ private:
     bool hasMine;
     bool isVisible;
     bool hasFlag;
-    std::vector<Tile *> neighbors = {nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr};
+    std::vector<Tile*> neighbors = {nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr};
+
+    void renderSprite(sf::RenderWindow& window, const std::vector<sf::Texture>& textures,
+                      const sf::Texture& texture) const;
 
 public:
     // Default constructor
     Tile();
 
     // Fully parameterized constructor
-    Tile(std::pair<int, int> coords, bool hasMine, bool isRevealed, bool isFlagged, std::vector<Tile *>& neighbors);
+    Tile(std::pair<int, int> coords, bool hasMine, bool isRevealed, bool isFlagged, std::vector<Tile*>& neighbors);
 
     // Parameterized constructor (just coords)
-    Tile(std::pair<int, int> coords, std::vector<Tile *>& neighbors);
+    Tile(std::pair<int, int> coords, std::vector<Tile*>& neighbors);
 
     explicit Tile(std::pair<int, int> coords);
 
@@ -32,7 +36,7 @@ public:
 
     std::pair<int, int> getCoords() const;
 
-    std::vector<Tile *> getNeighbors() const;
+    std::vector<Tile*> getNeighbors() const;
 
     void setMine(bool mine);
 
@@ -40,6 +44,10 @@ public:
 
     void setFlagged(bool flagged);
 
+    void renderTile(sf::RenderWindow& window, std::vector<sf::Texture>& textures) const;
+
+    void renderSprite(sf::RenderWindow& window, const std::vector<sf::Texture>& textures,
+                      const std::pair<float, float>& guiCoords) const;
 };
 
 
