@@ -48,9 +48,9 @@ public:
 
     void setDebug(bool debug);
 
-    void render(sf::RenderWindow& window, std::vector<sf::Texture>& textures);
+    void render(sf::RenderWindow& window, const std::vector<sf::Texture>& textures, bool isPaused);
 
-    // Handle if I was clicked (was there a mine?)
+    // Handle if I was clicked (am I a mine?)
     bool click();
 };
 

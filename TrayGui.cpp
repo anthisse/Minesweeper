@@ -3,9 +3,11 @@
 // Default constructor
 TrayGui::TrayGui(std::pair<int, int>& boardDimensions, const int& mines) {
     this->boardDimensions = boardDimensions;
-    printf("my board dimensions: cols=%d, rows=%d\n", boardDimensions.first, boardDimensions.second);
     startTime = std::chrono::high_resolution_clock::now();
     endTime = std::chrono::high_resolution_clock::now();
+    pausedStartTime = std::chrono::high_resolution_clock::now();
+    pausedEndTime = std::chrono::high_resolution_clock::now();
+    totalPausedTime = pausedEndTime - pausedStartTime;
     paused = false;
     isDebug = false;
     // TODO instead of having these private members, pass these parameters to renderMinesRemaining by reference
@@ -14,10 +16,18 @@ TrayGui::TrayGui(std::pair<int, int>& boardDimensions, const int& mines) {
 }
 
 // TODO does not account for time paused
-long long TrayGui::getElapsedSeconds() {
-    endTime = std::chrono::high_resolution_clock::now();
-    auto elapsedSeconds = std::chrono::duration_cast<std::chrono::seconds>(endTime - startTime);
-    return elapsedSeconds.count();
+std::chrono::duration<double, std::milli> TrayGui::updateGameTime() {
+    std::chrono::duration<double, std::milli> elapsedTotalTime;
+    elapsedTotalTime = endTime - startTime;
+    auto elapsedPauseTime = pausedEndTime - pausedStartTime;
+    if (!paused) {
+        endTime = std::chrono::high_resolution_clock::now();
+        totalPausedTime += elapsedPauseTime;
+        pausedEndTime = std::chrono::high_resolution_clock ::now();
+        pausedStartTime = std::chrono::high_resolution_clock ::now();
+    }
+    auto gameTime= elapsedTotalTime - totalPausedTime;
+    return gameTime;
 }
 
 bool TrayGui::isPaused() const {
@@ -82,7 +92,6 @@ void TrayGui::render(sf::RenderWindow& window, std::vector<sf::Texture>& texture
     buttonSprites.emplace_back(debugSprite);
     window.draw(debugSprite);
 
-    // Timer
     renderTimer(window, digitTexture);
 }
 
@@ -126,13 +135,13 @@ void TrayGui::renderMinesRemaining(sf::RenderWindow& window, const sf::Texture& 
 
 // Render the timer
 void TrayGui::renderTimer(sf::RenderWindow& window,
-                          const sf::Texture& texture) const {
+                          const sf::Texture& texture) {
     // Get minutes and seconds elapsed
-    long long elapsedMinutes = std::chrono::duration_cast<std::chrono::minutes>(endTime - startTime).count();
-    long long elapsedSeconds = std::chrono::duration_cast<std::chrono::seconds>(endTime - startTime).count();
+    auto elapsedGameTimeSeconds = updateGameTime();
+    long long elapsedMinutes = std::chrono::duration_cast<std::chrono::minutes>(elapsedGameTimeSeconds).count();
+    long long elapsedSeconds = std::chrono::duration_cast<std::chrono::seconds>(elapsedGameTimeSeconds).count();
 
     // Int divide by ten to get ten's digit and mod by ten to get one's digit
-    // FIXME renders incorrectly!
     int topMinutesDigit = static_cast<int>(elapsedMinutes) / 10;
     int bottomMinutesDigit = static_cast<int>(elapsedMinutes) % 10;
     int topSecondsDigit = static_cast<int>(elapsedSeconds) % 60 / 10;
@@ -172,14 +181,25 @@ void TrayGui::click(const sf::RenderWindow& window, const sf::Vector2i& mousePos
         if (buttonSprites[i].getGlobalBounds().contains(translatedPosition)) {
             switch (i) {
                 case face:
-                    // TODO do game reset stuff
                     printf("face button clicked!\n");
                     board.reset();
                     startTime = std::chrono::high_resolution_clock::now();
                     endTime = std::chrono::high_resolution_clock::now();
                     break;
                 case pause:
-                    // TODO do pause stuff
+                    // Unpause the game
+                    if (board.paused()) {
+                        this->paused = false;
+
+                        board.setPaused(paused);
+                        pausedEndTime = std::chrono::high_resolution_clock::now();
+                        break;
+                    }
+                    // Pause the game
+                    this->paused = true;
+                    board.setPaused(paused);
+                    pausedStartTime = std::chrono::high_resolution_clock::now();
+
                     break;
                 case lb:
                     // TODO do leaderboard stuff

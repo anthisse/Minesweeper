@@ -78,10 +78,16 @@ void Tile::setDebug(bool debug) {
 
 }
 // TODO should be const
-void Tile::render(sf::RenderWindow& window, std::vector<sf::Texture>& textures) {
+void Tile::render(sf::RenderWindow& window, const std::vector<sf::Texture>& textures, const bool isPaused) {
     enum textureIndices {
         flag, mine, num1, num2, num3, num4, num5, num6, num7, num8, hidden, revealed
     };
+
+    // Only render the revealed texture if the game is paused
+    if (isPaused) {
+        renderSprite(window, textures[revealed]);
+        return;
+    }
 
     // Tile background
     if (isVisible) {

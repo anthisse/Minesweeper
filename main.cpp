@@ -128,7 +128,7 @@ void renderGameWindow(sf::RenderWindow& window, Board& board, TrayGui& gui) {
 
     board.print();
     while (window.isOpen()) {
-        gui.getElapsedSeconds();
+        gui.updateGameTime();
         sf::Event event{};
         while (window.pollEvent(event)) {
             // Close the window if closed by the OS

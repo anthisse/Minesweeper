@@ -18,6 +18,7 @@ private:
     std::vector<std::vector<Tile>> board;
     int mineCount;
     bool isDebug;
+    bool isPaused;
     bool gameOver;
 
     void initializeBoard();
@@ -34,6 +35,8 @@ public:
 
     bool isDebugMode() const;
 
+    bool paused() const;
+
     bool isGameOver() const;
 
     void setTileFlagged(std::pair<int, int> coords, bool flagged);
@@ -43,6 +46,8 @@ public:
     void setTileRevealed(std::pair<int, int> coords, bool visible);
 
     void setDebug(bool debug);
+
+    void setPaused(bool p);
 
     void setGameOver(bool over);
 

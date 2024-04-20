@@ -6,6 +6,7 @@ Board::Board(std::pair<int, int> dimensions, int mineCount) {
     this->mineCount = mineCount;
     this->isDebug = false;
     this->gameOver = false;
+    this->isPaused = false;
     initializeBoard();
 }
 
@@ -15,6 +16,10 @@ std::pair<int,int> Board::getDimensions() const {
 
 bool Board::isDebugMode() const {
     return this->isDebug;
+}
+
+bool Board::paused() const {
+    return this->isPaused;
 }
 
 bool Board::isGameOver() const {
@@ -104,6 +109,10 @@ void Board::setDebug(bool debug) {
     }
 }
 
+void Board::setPaused(bool p) {
+    this->isPaused = p;
+}
+
 void Board::setGameOver(bool over) {
     this->gameOver = over;
 }
@@ -148,7 +157,7 @@ void Board::render(sf::RenderWindow& window, std::vector<sf::Texture>& textures)
     // TODO should be const!
     for ( auto& col : board) {
         for (auto& tile : col) {
-            tile.render(window, textures);
+            tile.render(window, textures, isPaused);
         }
     }
 }
