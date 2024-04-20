@@ -73,14 +73,14 @@ void Board::initializeBoard() {
             coords = {col, row};
             neighbors[TOP_LEFT] = (col > 0 && row > 0) ? &board[col - 1][row - 1] : nullptr;
             neighbors[TOP_MID] = (row > 0) ? &board[col][row - 1] : nullptr;
-            neighbors[TOP_RIGHT] = (col < dimensions.first - 1 && row > 0) ? &board[col + 1][row - 1] : nullptr; // 2 wrong, segfault
+            neighbors[TOP_RIGHT] = (col < dimensions.first - 1 && row > 0) ? &board[col + 1][row - 1] : nullptr; // 2
             // Middle colVector
             neighbors[MID_LEFT] = (col > 0) ? &board[col - 1][row] : nullptr;
-            neighbors[MID_RIGHT] = (col < dimensions.first - 1) ? &board[col + 1][row] : nullptr; // 4 Wrong, segfault
+            neighbors[MID_RIGHT] = (col < dimensions.first - 1) ? &board[col + 1][row] : nullptr; // 4 Wrong
             // Bottom colVector
             neighbors[BOT_LEFT] = (col > 0 && row < dimensions.second) ? &board[col - 1][row + 1] : nullptr;
             neighbors[BOT_MID] = (row < dimensions.second) ? &board[col][row + 1] : nullptr;
-            neighbors[BOT_RIGHT] = (col < dimensions.first - 1 && row < dimensions.second) // 7 Wrong, segfault
+            neighbors[BOT_RIGHT] = (col < dimensions.first - 1 && row < dimensions.second) // 7 Wrong
                                    ? &board[col + 1][row + 1] : nullptr;
             Tile tile = Tile(coords, neighbors);
             colVector.push_back(tile);
