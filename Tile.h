@@ -12,9 +12,10 @@ private:
     bool isVisible;
     bool hasFlag;
     bool isDebug;
+    sf::Sprite sprite;
     std::vector<Tile*> neighbors = {nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr};
 
-    void renderSprite(sf::RenderWindow& window, const sf::Texture& texture) const;
+    void drawSprite(sf::RenderWindow& window, const sf::Texture& texture);
 
 public:
     // Default constructor
@@ -35,6 +36,8 @@ public:
     bool isFlagged() const;
 
     bool isDebugMode() const;
+
+    sf::Sprite getSprite() const;
 
     std::pair<int, int> getCoords() const;
 

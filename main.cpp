@@ -73,14 +73,7 @@ sf::Texture loadTexture(const std::string& fileName) {
 // Load textures for sprites
 std::vector<sf::Texture> loadTextures() {
     std::vector<sf::Texture> textures;
-    textures.push_back(loadTexture("files/images/debug.png"));
-    textures.push_back(loadTexture("files/images/digits.png"));
-    textures.push_back(loadTexture("files/images/face_happy.png"));
-    textures.push_back(loadTexture("files/images/face_lose.png"));
-    textures.push_back(loadTexture("files/images/face_win.png"));
     textures.push_back(loadTexture("files/images/flag.png"));
-    textures.push_back(loadTexture("files/images/leaderboard.png"));
-    textures.push_back(loadTexture("files/images/mine.png"));
     textures.push_back(loadTexture("files/images/number_1.png"));
     textures.push_back(loadTexture("files/images/number_2.png"));
     textures.push_back(loadTexture("files/images/number_3.png"));
@@ -89,6 +82,13 @@ std::vector<sf::Texture> loadTextures() {
     textures.push_back(loadTexture("files/images/number_6.png"));
     textures.push_back(loadTexture("files/images/number_7.png"));
     textures.push_back(loadTexture("files/images/number_8.png"));
+    textures.push_back(loadTexture("files/images/debug.png"));
+    textures.push_back(loadTexture("files/images/digits.png"));
+    textures.push_back(loadTexture("files/images/face_happy.png"));
+    textures.push_back(loadTexture("files/images/face_lose.png"));
+    textures.push_back(loadTexture("files/images/face_win.png"));
+    textures.push_back(loadTexture("files/images/leaderboard.png"));
+    textures.push_back(loadTexture("files/images/mine.png"));
     textures.push_back(loadTexture("files/images/pause.png"));
     textures.push_back(loadTexture("files/images/play.png"));
     textures.push_back(loadTexture("files/images/tile_hidden.png"));
@@ -102,13 +102,13 @@ void renderGameWindow(sf::RenderWindow& window, Board& board, TrayGui& gui) {
 
     std::vector<sf::Texture> textures = loadTextures();
     enum textureIndices {
-        debug, digits, happy, lose, win, flag, lb, mine,
-        num1, num2, num3, num4, num5, num6, num7, num8, pause, play, hidden, revealed
+        flag, num1, num2, num3, num4, num5, num6, num7, num8, debug, digits, happy, lose, win, lb, mine,
+        pause, play, hidden, revealed
     };
 
-    std::vector<sf::Texture> tileTextures = {textures[flag], textures[mine], textures[num1], textures[num2],
-                                             textures[num3], textures[num4], textures[num5], textures[num6],
-                                             textures[num7], textures[num8], textures[hidden], textures[revealed]};
+    std::vector<sf::Texture> tileTextures = {textures[flag], textures[num1], textures[num2], textures[num3],
+                                             textures[num4], textures[num5], textures[num6], textures[num7],
+                                             textures[num8], textures[mine], textures[hidden], textures[revealed]};
 
     std::vector<sf::Texture> guiTextures = {textures[debug], textures[digits], textures[happy], textures[lose],
                                             textures[win], textures[lb], textures[pause], textures[play]};
@@ -124,30 +124,28 @@ void renderGameWindow(sf::RenderWindow& window, Board& board, TrayGui& gui) {
                 return;
             }
             if (event.type == sf::Event::MouseButtonPressed) {
+                bool isLeftMouseButton;
                 sf::Vector2i mousePosition = sf::Mouse::getPosition(window);
-                sf::Vector2f translatedPosition = window.mapPixelToCoords(mousePosition);
                 if (event.mouseButton.button == sf::Mouse::Left) {
-//                printf("lmb pressed at x=%d, y=%d\n", mousePosition.x, mousePosition.y);
-                gui.click(window, mousePosition, tileTextures, board);
-                std::pair<int, int> foo = {0, 0};
-                board.setTileFlagged(foo, true);
-//                board.setDebug(true);
-                // TODO maybe there should be a function in Board that counts the number of flags
-                gui.incrementFlags();
+                    isLeftMouseButton = true;
+
+                    // TODO maybe there should be a function in Board that counts the number of flags
                 }
                 if (event.mouseButton.button == sf::Mouse::Right) {
-//                    printf("lmb pressed at x=%d, y=%d\n", mousePosition.x, mousePosition.y);
-                    std::pair<int, int> foo = {0, 0};
-                    board.setTileFlagged(foo, false);
-//                    board.setDebug(false);
-                    gui.decrementFlags();
+                    isLeftMouseButton = false;
+                }
+                board.click(window, mousePosition, isLeftMouseButton);
+                gui.click(window, mousePosition, tileTextures, board);
+                if (board.isGameOver()) {
+                    // TODO Game over things
+                    printf("Game is over!\n");
                 }
             }
         }
-    window.clear(sf::Color::White);
-    board.render(window, tileTextures);
-    gui.render(window, guiTextures);
-    window.display();
+        window.clear(sf::Color::White);
+        board.render(window, tileTextures);
+        gui.render(window, guiTextures);
+        window.display();
     }
 }
 
