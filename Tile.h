@@ -13,8 +13,7 @@ private:
     bool hasFlag;
     std::vector<Tile*> neighbors = {nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr};
 
-    void renderSprite(sf::RenderWindow& window, const std::vector<sf::Texture>& textures,
-                      const sf::Texture& texture) const;
+    void renderSprite(sf::RenderWindow& window, const sf::Texture& texture) const;
 
 public:
     // Default constructor
@@ -44,10 +43,10 @@ public:
 
     void setFlagged(bool flagged);
 
-    void renderTile(sf::RenderWindow& window, std::vector<sf::Texture>& textures) const;
+    void render(sf::RenderWindow& window, std::vector<sf::Texture>& textures) const;
 
-    void renderSprite(sf::RenderWindow& window, const std::vector<sf::Texture>& textures,
-                      const std::pair<float, float>& guiCoords) const;
+    // Handle if I was clicked (was there a mine?)
+    bool click();
 };
 
 

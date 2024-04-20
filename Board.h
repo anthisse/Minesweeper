@@ -2,9 +2,10 @@
 #define MINESWEEPER_BOARD_H
 
 #include "Tile.h"
-#include <vector>
-#include <utility> // includes std::pair
-#include <SFML/Graphics.hpp>
+#include <iostream>
+#include <random>
+#include <utility>
+#include <algorithm>
 
 enum pos {
     TOP_LEFT, TOP_MID, TOP_RIGHT, MID_LEFT, MID_RIGHT, BOT_LEFT, BOT_MID, BOT_RIGHT
@@ -32,12 +33,16 @@ public:
 
     void setTileRevealed(std::pair<int, int> coords, bool visible);
 
+    // Figure out which tile was clicked
+    bool click(std::pair<int, int> coords);
+
     Tile getTile(std::pair<int, int> coords);
 
     // TODO remove after debugging
     void print();
 
-    void displayBoard(sf::RenderWindow& window, std::vector<sf::Texture>& textures);
+    void render(sf::RenderWindow& window, std::vector<sf::Texture>& textures);
+
 };
 
 

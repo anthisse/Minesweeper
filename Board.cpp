@@ -1,9 +1,5 @@
 #include "Board.h"
-#include <iostream>
-#include <random>
-#include <chrono>
-#include <utility>
-#include <algorithm>
+
 
 Board::Board(std::pair<int, int> dimensions, int mineCount) {
     this->dimensions = std::move(dimensions);
@@ -17,7 +13,6 @@ void Board::populateBoard() {
 //    std::mt19937 rng(std::chrono::system_clock::now().time_since_epoch().count());
     //TODO debug, seed is the same every time...
     std::mt19937 rng(0);
-    unsigned long long foo = std::chrono::system_clock::now().time_since_epoch().count();
     std::uniform_int_distribution<> randomCol(0, dimensions.first - 1);
     std::uniform_int_distribution<> randomRow(0, dimensions.second - 1);
     int minesRemaining = mineCount;
@@ -113,7 +108,7 @@ Tile Board::getTile(std::pair<int, int> coords) {
 }
 
 
-// FIXME since columns are first then rows, this is anti-clockwise rotated 90 degrees!
+// Since columns are first then rows, this is anti-clockwise rotated 90 degrees!
 void Board::print() {
     int i = 0;
     std::cout << "  0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5\n";
@@ -133,11 +128,11 @@ void Board::print() {
     }
 }
 
-void Board::displayBoard(sf::RenderWindow& window, std::vector<sf::Texture>& textures) {
+void Board::render(sf::RenderWindow& window, std::vector<sf::Texture>& textures) {
     for (const auto& col : board) {
         for (const auto& tile : col) {
-            tile.renderTile(window, textures);
+            tile.render(window, textures);
         }
     }
-    window.display();
+//    window.display();
 }

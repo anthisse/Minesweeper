@@ -5,6 +5,7 @@
 #include <exception>
 #include <utility>
 #include "Board.h"
+#include "TrayGui.h"
 
 // Bad file read exception
 class file_read_exception : public std::exception {
@@ -28,9 +29,9 @@ sf::Text initializeNameEntryText(const sf::RenderWindow& window, const sf::Font&
 
 sf::Text fillNameEntryField(const sf::RenderWindow& window, const sf::Font& font, std::string name);
 
-std::string renderWelcomeWindow(sf::RenderWindow& window);
+bool renderWelcomeWindow(sf::RenderWindow& window, std::string& name);
 
-void renderBoardWindow(sf::RenderWindow& window, Board& board);
+void renderGameWindow(sf::RenderWindow& window, Board& board, TrayGui& gui);
 
 std::vector<sf::Texture> loadTextures();
 
@@ -40,8 +41,8 @@ int main() {
     int rowCount = gameParameters[1];
     int mineCount = gameParameters[2];
 
-    // TODO
-    mineCount = 150;
+    // TODO remove me
+    mineCount = 5;
     std::pair<int, int> dimensions = {colCount, rowCount};
 
     printf("dimensions: %d, %d\n", dimensions.first, dimensions.second);
@@ -50,8 +51,11 @@ int main() {
     sf::RenderWindow welcomeWindow(sf::VideoMode(
             colCount * 32, rowCount * 32 + 100), "Minesweeper");
 
+    std::string name;
     // Render the welcome menu
-    std::string name = renderWelcomeWindow(welcomeWindow);
+    if (renderWelcomeWindow(welcomeWindow, name)) {
+        return EXIT_SUCCESS;
+    }
 
     // If no name was entered, then the close button must have been pressed; exit now
     if (name.empty()) {
@@ -64,10 +68,11 @@ int main() {
     sf::RenderWindow gameWindow(sf::VideoMode(
             colCount * 32, rowCount * 32 + 100), "Minesweeper");
 
-    // Create a board
+    // Create a board and a TrayGui
     Board board = Board(dimensions, mineCount);
+    TrayGui gui = TrayGui(dimensions, mineCount);
 
-    renderBoardWindow(gameWindow, board);
+    renderGameWindow(gameWindow, board, gui);
     // Load the board
     return EXIT_SUCCESS;
 }
@@ -107,7 +112,9 @@ std::vector<sf::Texture> loadTextures() {
 }
 
 // Main game window
-void renderBoardWindow(sf::RenderWindow& window, Board& board) {
+// TODO create the board inside this function!
+void renderGameWindow(sf::RenderWindow& window, Board& board, TrayGui& gui) {
+
     std::vector<sf::Texture> textures = loadTextures();
     enum textureIndices {
         debug, digits, happy, lose, win, flag, lb, mine,
@@ -118,13 +125,12 @@ void renderBoardWindow(sf::RenderWindow& window, Board& board) {
                                              textures[num3], textures[num4], textures[num5], textures[num6],
                                              textures[num7], textures[num8], textures[hidden], textures[revealed]};
 
+    std::vector<sf::Texture> guiTextures = {textures[debug], textures[digits], textures[happy], textures[lose],
+                                            textures[win], textures[lb], textures[pause], textures[play]};
+
     board.print();
-
-    // TODO something is weird about this. It seems to render twice.
-    board.displayBoard(window, tileTextures);
-
     while (window.isOpen()) {
-
+        gui.getElapsedSeconds();
         sf::Event event{};
         while (window.pollEvent(event)) {
             // Close the window if closed by the OS
@@ -132,16 +138,30 @@ void renderBoardWindow(sf::RenderWindow& window, Board& board) {
                 window.close();
             }
             if (event.type == sf::Event::MouseButtonPressed) {
+                if (event.mouseButton.button == sf::Mouse::Left) {
                 printf("lmb pressed\n");
-                std::pair<int,int>foo = {0,0};
+                std::pair<int, int> foo = {0, 0};
                 board.setTileFlagged(foo, true);
-                board.displayBoard(window, tileTextures);
+                // TODO maybe there should be a function in Board that counts the number of flags
+                gui.incrementFlags();
+                }
+                if (event.mouseButton.button == sf::Mouse::Right) {
+                    printf("rmb pressed\n");
+                    std::pair<int, int> foo = {0, 0};
+                    board.setTileFlagged(foo, false);
+                    gui.decrementFlags();
+                }
             }
+//            if (event.type == sf::Event::MouseButtonPressed)
         }
+    window.clear(sf::Color::White);
+    board.render(window, tileTextures);
+    gui.render(window, guiTextures);
+    window.display();
     }
 }
 
-std::string renderWelcomeWindow(sf::RenderWindow& window) {
+bool renderWelcomeWindow(sf::RenderWindow& window, std::string& name) {
     // Font text
     sf::Font font;
     if (!font.loadFromFile("files/font.ttf")) {
@@ -153,7 +173,6 @@ std::string renderWelcomeWindow(sf::RenderWindow& window) {
     sf::Text welcomeText = initializeWelcomeText(window, font);
     sf::Text nameEntryText = initializeNameEntryText(window, font);
     sf::Text nameEntryField = fillNameEntryField(window, font, "");
-    std::string name;
 
     // Event loop
     while (window.isOpen()) {
@@ -162,14 +181,22 @@ std::string renderWelcomeWindow(sf::RenderWindow& window) {
             // Close the window if closed by the OS
             if (event.type == sf::Event::Closed) {
                 window.close();
+                return true;
             }
 
             // Return once a name is submitted
             if (sf::Keyboard::isKeyPressed(sf::Keyboard::Enter) && !name.empty()) {
-                return name;
+                return false;
             }
+
             // Get name input
             if (event.type == sf::Event::TextEntered) {
+                // Escape sequence for backspace is \b
+                if (event.text.unicode == '\b' && !name.empty()) {
+                    name.pop_back();
+                    nameEntryField = fillNameEntryField(window, font, name);
+                    continue;
+                }
                 // Don't add the character if it's not alphanumeric or if the name's length is >= 10
                 if (!isalpha(static_cast<char>(event.text.unicode)) || name.size() >= 10) {
                     continue;
@@ -188,13 +215,13 @@ std::string renderWelcomeWindow(sf::RenderWindow& window) {
 
         // Draw window elements
         // FIXME Change back to blue before submission!
-        window.clear(sf::Color(120, 120, 120));
+        window.clear(sf::Color::Blue);
         window.draw(welcomeText);
         window.draw(nameEntryText);
         window.draw(nameEntryField);
         window.display();
     }
-    return name;
+    return true;
 }
 
 std::vector<int> readConfig() {

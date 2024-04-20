@@ -65,27 +65,23 @@ void Tile::setFlagged(bool flagged) {
     this->hasFlag = flagged;
 }
 
-void Tile::renderTile(sf::RenderWindow& window, std::vector<sf::Texture>& textures) const {
+void Tile::render(sf::RenderWindow& window, std::vector<sf::Texture>& textures) const {
     enum textureIndices {
         flag, mine, num1, num2, num3, num4, num5, num6, num7, num8, hidden, revealed
     };
 
     // Tile background
     if (isVisible) {
-        renderSprite(window, textures, textures[revealed]);
-        if (hasFlag) { renderSprite(window, textures, textures[flag]); }
-        if (hasMine) { renderSprite(window, textures, textures[mine]); }
-
+        renderSprite(window,textures[revealed]);
+        if (hasFlag) { renderSprite(window, textures[flag]); }
+        if (hasMine) { renderSprite(window,textures[mine]); }
     } else {
-        renderSprite(window, textures, textures[hidden]);
-        if (hasFlag) { renderSprite(window, textures, textures[flag]); }
+        renderSprite(window, textures[hidden]);
+        if (hasFlag) { renderSprite(window, textures[flag]); }
     }
-    if (hasMine) { renderSprite(window, textures, textures[mine]); }
-
 }
 
-void Tile::renderSprite(sf::RenderWindow& window, const std::vector<sf::Texture>& textures,
-                        const sf::Texture& texture) const {
+void Tile::renderSprite(sf::RenderWindow& window, const sf::Texture& texture) const {
     sf::Sprite sprite(texture);
     // Tiles are 32x32 pixels
     sprite.setPosition(static_cast<float>(coords.first) * 32, static_cast<float>(coords.second) * 32);

@@ -7,7 +7,9 @@ add_executable(Minesweeper main.cpp
         Tile.cpp
         Tile.h
         Board.cpp
-        Board.h)
+        Board.h
+        TrayGui.cpp
+        TrayGui.h)
 
 set(SFML_STATIC_LIBRARIES TRUE)
 set(SFML_DIR C:/SFML/lib/cmake/SFML)
