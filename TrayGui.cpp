@@ -135,8 +135,8 @@ void TrayGui::renderTimer(sf::RenderWindow& window,
     // FIXME renders incorrectly!
     int topMinutesDigit = static_cast<int>(elapsedMinutes) / 10;
     int bottomMinutesDigit = static_cast<int>(elapsedMinutes) % 10;
-    int topSecondsDigit = static_cast<int>(elapsedSeconds) / 10;
-    int bottomSecondsDigit = static_cast<int>(elapsedSeconds) % 10;
+    int topSecondsDigit = static_cast<int>(elapsedSeconds) % 60 / 10;
+    int bottomSecondsDigit = static_cast<int>(elapsedSeconds) % 60 % 10;
 
     // Set textures
     sf::Sprite topMinutesSprite(texture);
