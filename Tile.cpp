@@ -75,8 +75,8 @@ void Tile::setFlagged(bool flagged) {
 
 void Tile::setDebug(bool debug) {
     this->isDebug = debug;
-}
 
+}
 // TODO should be const
 void Tile::render(sf::RenderWindow& window, std::vector<sf::Texture>& textures) {
     enum textureIndices {

@@ -173,6 +173,10 @@ void TrayGui::click(const sf::RenderWindow& window, const sf::Vector2i& mousePos
             switch (i) {
                 case face:
                     // TODO do game reset stuff
+                    printf("face button clicked!\n");
+                    board.reset();
+                    startTime = std::chrono::high_resolution_clock::now();
+                    endTime = std::chrono::high_resolution_clock::now();
                     break;
                 case pause:
                     // TODO do pause stuff

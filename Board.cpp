@@ -4,6 +4,8 @@
 Board::Board(std::pair<int, int> dimensions, int mineCount) {
     this->dimensions = std::move(dimensions);
     this->mineCount = mineCount;
+    this->isDebug = false;
+    this->gameOver = false;
     initializeBoard();
 }
 
@@ -15,12 +17,14 @@ bool Board::isDebugMode() const {
     return this->isDebug;
 }
 
+bool Board::isGameOver() const {
+    return this->gameOver;
+}
+
 void Board::populateBoard() {
-    // Seed the random number generator
+    // Seed the random number generator and start generating
     std::random_device rd;
-//    std::mt19937 rng(std::chrono::system_clock::now().time_since_epoch().count());
-    //TODO debug, seed is the same every time...
-    std::mt19937 rng(0);
+    std::mt19937 rng(std::chrono::system_clock::now().time_since_epoch().count());
     std::uniform_int_distribution<> randomCol(0, dimensions.first - 1);
     std::uniform_int_distribution<> randomRow(0, dimensions.second - 1);
     int minesRemaining = mineCount;
@@ -35,23 +39,6 @@ void Board::populateBoard() {
         }
         board[colCoord][rowCoord].setMine(true);
         minesRemaining--;
-    }
-
-    // Count the number of mines laid
-    int minesLaid = 0;
-    for (const auto& x: board) {
-        for (const auto& y: x) {
-            if (y.isMine()) {
-                minesLaid++;
-            }
-        }
-    }
-    // How many tiles are there?
-    int numTiles = 0;
-    for (const auto& x: board) {
-        for (const auto& y: x) {
-            numTiles++;
-        }
     }
 }
 
@@ -117,6 +104,10 @@ void Board::setDebug(bool debug) {
     }
 }
 
+void Board::setGameOver(bool over) {
+    this->gameOver = over;
+}
+
 Tile Board::getTile(std::pair<int, int> coords) {
     int column = coords.first;
     int row = coords.second;
@@ -124,6 +115,14 @@ Tile Board::getTile(std::pair<int, int> coords) {
     return board[column][row];
 }
 
+// Reset the board
+void Board::reset() {
+    for (auto& vec : board) {
+        vec.clear();
+    }
+    board.shrink_to_fit();
+    initializeBoard();
+}
 
 // Since columns are first then rows, this is anti-clockwise rotated 90 degrees!
 void Board::print() {
@@ -152,5 +151,4 @@ void Board::render(sf::RenderWindow& window, std::vector<sf::Texture>& textures)
             tile.render(window, textures);
         }
     }
-//    window.display();
 }

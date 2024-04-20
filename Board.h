@@ -6,6 +6,7 @@
 #include <random>
 #include <utility>
 #include <algorithm>
+#include <chrono>
 
 enum pos {
     TOP_LEFT, TOP_MID, TOP_RIGHT, MID_LEFT, MID_RIGHT, BOT_LEFT, BOT_MID, BOT_RIGHT
@@ -17,6 +18,7 @@ private:
     std::vector<std::vector<Tile>> board;
     int mineCount;
     bool isDebug;
+    bool gameOver;
 
     void initializeBoard();
 
@@ -32,6 +34,8 @@ public:
 
     bool isDebugMode() const;
 
+    bool isGameOver() const;
+
     void setTileFlagged(std::pair<int, int> coords, bool flagged);
 
     void setTileMine(std::pair<int, int> coords, bool mine);
@@ -39,6 +43,10 @@ public:
     void setTileRevealed(std::pair<int, int> coords, bool visible);
 
     void setDebug(bool debug);
+
+    void setGameOver(bool over);
+
+    void reset();
 
     // Figure out which tile was clicked
     bool click(std::pair<int, int> coords);
