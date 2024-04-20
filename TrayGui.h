@@ -3,9 +3,10 @@
 
 #include <iostream>
 #include <chrono>
-#include <utility>
+#include <fstream>
 #include <SFML/Graphics.hpp>
 #include "Board.h"
+#include "file_read_exception.h"
 
 class TrayGui {
 private:
@@ -18,9 +19,7 @@ private:
     bool paused;
     bool isDebug;
     std::vector<sf::Sprite> buttonSprites;
-    enum buttonSpriteIndices {
-        face, pause, lb, debug
-    };
+
     // TODO see TrayGui.cpp
     int mines;
     int flags;
@@ -48,8 +47,14 @@ public:
 
     void renderMinesRemaining(sf::RenderWindow& window, const sf::Texture& texture) const;
 
-    void click(const sf::RenderWindow& window, const sf::Vector2i& mousePosition, Board& board);
+    void click(sf::RenderWindow& window, const sf::Vector2i& mousePosition,
+               const std::vector<sf::Texture>& tileTextures, Board& board);
 
+    void openLeaderboard();
+
+    static sf::Text initializeLeaderboardHeaderText(const sf::RenderWindow& window, const sf::Font& font);
+
+    static sf::Text initializeLeaderboardContentText(const sf::RenderWindow& window, const sf::Font& font);
 
 };
 

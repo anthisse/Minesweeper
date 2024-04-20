@@ -23,10 +23,10 @@ std::chrono::duration<double, std::milli> TrayGui::updateGameTime() {
     if (!paused) {
         endTime = std::chrono::high_resolution_clock::now();
         totalPausedTime += elapsedPauseTime;
-        pausedEndTime = std::chrono::high_resolution_clock ::now();
-        pausedStartTime = std::chrono::high_resolution_clock ::now();
+        pausedEndTime = std::chrono::high_resolution_clock::now();
+        pausedStartTime = std::chrono::high_resolution_clock::now();
     }
-    auto gameTime= elapsedTotalTime - totalPausedTime;
+    auto gameTime = elapsedTotalTime - totalPausedTime;
     return gameTime;
 }
 
@@ -72,7 +72,7 @@ void TrayGui::render(sf::RenderWindow& window, std::vector<sf::Texture>& texture
 
     // Pause button
     sf::Sprite pauseButtonSprite;
-    paused ? pauseButtonSprite.setTexture(textures[pause]) : pauseButtonSprite.setTexture(textures[play]);
+    paused ? pauseButtonSprite.setTexture(textures[play]) : pauseButtonSprite.setTexture(textures[pause]);
     pauseButtonSprite.setPosition(static_cast<float>(boardDimensions.first * 32) - 240,
                                   static_cast<float>(32 * (boardDimensions.second + 0.5)));
     buttonSprites.emplace_back(pauseButtonSprite);
@@ -174,14 +174,24 @@ void TrayGui::renderTimer(sf::RenderWindow& window,
     window.draw(bottomSecondsSprite);
 }
 
-void TrayGui::click(const sf::RenderWindow& window, const sf::Vector2i& mousePosition, Board& board) {
+void TrayGui::click(sf::RenderWindow& window, const sf::Vector2i& mousePosition,
+                    const std::vector<sf::Texture>& tileTextures, Board& board) {
+    enum buttonSpritesIndices {
+        face, pause, lb, debug
+    };
+    enum tileTextureIndices {
+        flag, mine, num1, num2, num3, num4, num5, num6, num7, num8, hidden, revealed
+    };
+
     // Figure out which button was clicked
     sf::Vector2f translatedPosition = window.mapPixelToCoords(mousePosition);
     for (unsigned i = 0; i < buttonSprites.size(); i++) {
         if (buttonSprites[i].getGlobalBounds().contains(translatedPosition)) {
+            // No need for a default label, we don't really care if we don't do anything
             switch (i) {
                 case face:
                     printf("face button clicked!\n");
+                    // Reset time and the board
                     board.reset();
                     startTime = std::chrono::high_resolution_clock::now();
                     endTime = std::chrono::high_resolution_clock::now();
@@ -190,7 +200,6 @@ void TrayGui::click(const sf::RenderWindow& window, const sf::Vector2i& mousePos
                     // Unpause the game
                     if (board.paused()) {
                         this->paused = false;
-
                         board.setPaused(paused);
                         pausedEndTime = std::chrono::high_resolution_clock::now();
                         break;
@@ -199,22 +208,117 @@ void TrayGui::click(const sf::RenderWindow& window, const sf::Vector2i& mousePos
                     this->paused = true;
                     board.setPaused(paused);
                     pausedStartTime = std::chrono::high_resolution_clock::now();
-
                     break;
                 case lb:
-                    // TODO do leaderboard stuff
+                    // Paused before opening the leaderboard?
+                    bool wasPaused;
+                    wasPaused = paused;
+                    // Pause the game
+                    if (!paused) {
+                        this->paused = true;
+                        board.setPaused(true);
+                        pausedStartTime = std::chrono::high_resolution_clock::now();
+                        board.render(window, tileTextures);
+                        window.display();
+                    }
+                    // Open leaderboard window
+                    openLeaderboard();
+
+                    // Once closed, check previous pause state and apply it
+                    paused = wasPaused;
+                    board.setPaused(wasPaused);
+                    if (!paused) {
+                        board.render(window, tileTextures);
+                    }
+                    pausedEndTime = std::chrono::high_resolution_clock::now();
+                    window.display();
                     break;
                 case debug:
+                    // Toggle debug mode
                     board.setDebug(!board.isDebugMode());
                     break;
-
-                default:
-                    // Just do nothing if no button was clicked
-                    // TODO might be redundant
-                    return;
             }
             // Stop after first button click
             return;
         }
     }
+}
+
+void TrayGui::openLeaderboard() {
+    sf::RenderWindow lbWindow(sf::VideoMode(boardDimensions.first * 16,
+                                            (boardDimensions.second * 16) + 50), "Minesweeper");
+
+    sf::Font font;
+    if (!font.loadFromFile("files/font.ttf")) {
+        // todo should load an error window
+        throw file_read_exception("Failed to load font!");
+    }
+    sf::Text leaderboardText = initializeLeaderboardHeaderText(lbWindow, font);
+    sf::Text leaderboardContentText = initializeLeaderboardContentText(lbWindow, font);
+
+    while (lbWindow.isOpen()) {
+        sf::Event event{};
+        while (lbWindow.pollEvent(event)) {
+            if (event.type == sf::Event::Closed || event.type == sf::Keyboard::isKeyPressed(sf::Keyboard::Escape)) {
+                lbWindow.close();
+                return;
+            }
+        }
+        lbWindow.clear(sf::Color::Blue);
+        lbWindow.draw(leaderboardText);
+        lbWindow.draw(leaderboardContentText);
+        lbWindow.display();
+    }
+}
+
+sf::Text TrayGui::initializeLeaderboardHeaderText(const sf::RenderWindow& window, const sf::Font& font) {
+    sf::Text leaderboardText;
+    leaderboardText.setFont(font);
+    leaderboardText.setString("LEADERBOARD");
+    leaderboardText.setStyle(sf::Text::Underlined | sf::Text::Bold);
+    leaderboardText.setFillColor(sf::Color::White);
+    leaderboardText.setCharacterSize(20);
+
+    sf::FloatRect welcomeTextRect = leaderboardText.getLocalBounds();
+    leaderboardText.setOrigin(welcomeTextRect.left + welcomeTextRect.width / 2.0f,
+                              welcomeTextRect.top + welcomeTextRect.height / 2.0f);
+    leaderboardText.setPosition(static_cast<float>(window.getSize().x) / 2.0f,
+                                static_cast<float>(window.getSize().y) / 2.0f - 120);
+    return leaderboardText;
+}
+
+sf::Text TrayGui::initializeLeaderboardContentText(const sf::RenderWindow& window, const sf::Font& font) {
+    std::ifstream leaderboardFile("files/leaderboard.txt");
+
+    if (!leaderboardFile.good()) {
+        // TODO should open error window
+        throw file_read_exception("Failed to open files/leaderboard.txt!");
+    }
+    std::string contentString;
+    while (!leaderboardFile.eof()) {
+        int iteration;
+        std::string time;
+        std::string name;
+        std::getline(leaderboardFile, time, ',');
+        std::getline(leaderboardFile, name, ' '); // Skip the space
+        std::getline(leaderboardFile, name, '\n');
+
+        // Build content string
+        contentString += std::to_string(iteration) += std::string(".") += std::string("\t") +=
+        time += std::string("\t") += name += std::string("\n\n");
+        iteration++;
+    }
+    sf::Text leaderboardContentText;
+    leaderboardContentText.setFont(font);
+    leaderboardContentText.setString(contentString);
+    leaderboardContentText.setStyle(sf::Text::Bold);
+    leaderboardContentText.setFillColor(sf::Color::White);
+    leaderboardContentText.setCharacterSize(18);
+
+    sf::FloatRect welcomeTextRect = leaderboardContentText.getLocalBounds();
+    leaderboardContentText.setOrigin(welcomeTextRect.left + welcomeTextRect.width / 2.0f,
+                                     welcomeTextRect.top + welcomeTextRect.height / 2.0f);
+    leaderboardContentText.setPosition(static_cast<float>(window.getSize().x) / 2.0f,
+                                       static_cast<float>(window.getSize().y) / 2.0f + 20);
+    return leaderboardContentText;
 }

@@ -2,23 +2,10 @@
 #include <iostream>
 #include <fstream>
 #include <string>
-#include <exception>
 #include <utility>
 #include "Board.h"
 #include "TrayGui.h"
-
-// Bad file read exception
-class file_read_exception : public std::exception {
-private:
-    std::string message;
-public:
-    explicit file_read_exception(const char* msg) : message(msg) {}
-
-    // Override the what() method
-    const char* what() const noexcept override {
-        return message.c_str();
-    }
-};
+#include "file_read_exception.h"
 
 // todo Perhaps this data structure isn't quite the right thing
 std::vector<int> readConfig();
@@ -141,7 +128,7 @@ void renderGameWindow(sf::RenderWindow& window, Board& board, TrayGui& gui) {
                 sf::Vector2f translatedPosition = window.mapPixelToCoords(mousePosition);
                 if (event.mouseButton.button == sf::Mouse::Left) {
 //                printf("lmb pressed at x=%d, y=%d\n", mousePosition.x, mousePosition.y);
-                gui.click(window, mousePosition, board);
+                gui.click(window, mousePosition, tileTextures, board);
                 std::pair<int, int> foo = {0, 0};
                 board.setTileFlagged(foo, true);
 //                board.setDebug(true);

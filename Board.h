@@ -61,7 +61,7 @@ public:
     // TODO remove after debugging
     void print();
 
-    void render(sf::RenderWindow& window, std::vector<sf::Texture>& textures);
+    void render(sf::RenderWindow& window, const std::vector<sf::Texture>& textures);
 
 };
 

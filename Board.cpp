@@ -153,7 +153,7 @@ void Board::print() {
     }
 }
 
-void Board::render(sf::RenderWindow& window, std::vector<sf::Texture>& textures) {
+void Board::render(sf::RenderWindow& window, const std::vector<sf::Texture>& textures) {
     // TODO should be const!
     for ( auto& col : board) {
         for (auto& tile : col) {
