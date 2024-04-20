@@ -3,9 +3,12 @@
 // Default constructor
 TrayGui::TrayGui(std::pair<int, int>& boardDimensions, const int& mines) {
     this->boardDimensions = boardDimensions;
+    printf("my board dimensions: cols=%d, rows=%d\n", boardDimensions.first, boardDimensions.second);
     startTime = std::chrono::high_resolution_clock::now();
     endTime = std::chrono::high_resolution_clock::now();
     paused = false;
+    isDebug = false;
+    // TODO instead of having these private members, pass these parameters to renderMinesRemaining by reference
     this->mines = mines;
     this->flags = 0;
 }
@@ -21,8 +24,16 @@ bool TrayGui::isPaused() const {
     return paused;
 }
 
+bool TrayGui::isDebugOn() const {
+    return this->isDebug;
+}
+
 void TrayGui::setPaused(bool p) {
     this->paused = p;
+}
+
+void TrayGui::setDebug(bool d) {
+    this->isDebug = d;
 }
 
 void TrayGui::incrementFlags() {
@@ -33,7 +44,7 @@ void TrayGui::decrementFlags() {
     this->flags--;
 }
 
-void TrayGui::render(sf::RenderWindow& window, std::vector<sf::Texture>& textures) const {
+void TrayGui::render(sf::RenderWindow& window, std::vector<sf::Texture>& textures) {
     enum guiTextures {
         debug, digits, happy, lose, win, lb, pause, play
     };
@@ -46,6 +57,7 @@ void TrayGui::render(sf::RenderWindow& window, std::vector<sf::Texture>& texture
     sf::Sprite gameStateSprite(textures[happy]);
     gameStateSprite.setPosition(static_cast<float>(boardDimensions.first * 16 - 32),
                                 static_cast<float>(32 * (boardDimensions.second + 0.5)));
+    buttonSprites.emplace_back(gameStateSprite);
     window.draw(gameStateSprite);
 
     // Pause button
@@ -53,21 +65,24 @@ void TrayGui::render(sf::RenderWindow& window, std::vector<sf::Texture>& texture
     paused ? pauseButtonSprite.setTexture(textures[pause]) : pauseButtonSprite.setTexture(textures[play]);
     pauseButtonSprite.setPosition(static_cast<float>(boardDimensions.first * 32) - 240,
                                   static_cast<float>(32 * (boardDimensions.second + 0.5)));
+    buttonSprites.emplace_back(pauseButtonSprite);
     window.draw(pauseButtonSprite);
 
-    // Leaderboard button
+    // Leaderboard button, clickable
     sf::Sprite leaderboardSprite(textures[lb]);
     leaderboardSprite.setPosition(static_cast<float>(boardDimensions.first * 32 - 176),
                                   static_cast<float>(32 * (boardDimensions.second + 0.5)));
-
+    buttonSprites.emplace_back(leaderboardSprite);
     window.draw(leaderboardSprite);
 
-    // Draw debug sprite
+    // Debug button
     sf::Sprite debugSprite(textures[debug]);
-    debugSprite.setPosition(static_cast<float>(boardDimensions.first * 32 - 304),
+    debugSprite.setPosition(static_cast<float>(boardDimensions.first * 32 - 304), // 25 x 16 board
                             static_cast<float>(32 * (boardDimensions.second + 0.5)));
+    buttonSprites.emplace_back(debugSprite);
     window.draw(debugSprite);
 
+    // Timer
     renderTimer(window, digitTexture);
 }
 
@@ -117,6 +132,7 @@ void TrayGui::renderTimer(sf::RenderWindow& window,
     long long elapsedSeconds = std::chrono::duration_cast<std::chrono::seconds>(endTime - startTime).count();
 
     // Int divide by ten to get ten's digit and mod by ten to get one's digit
+    // FIXME renders incorrectly!
     int topMinutesDigit = static_cast<int>(elapsedMinutes) / 10;
     int bottomMinutesDigit = static_cast<int>(elapsedMinutes) % 10;
     int topSecondsDigit = static_cast<int>(elapsedSeconds) / 10;
@@ -142,8 +158,39 @@ void TrayGui::renderTimer(sf::RenderWindow& window,
     bottomSecondsSprite.setPosition(static_cast<float>((boardDimensions.first * 32)) - 54 + 21,
                                     static_cast<float>((32 * (boardDimensions.second + 0.5))) + 16);
 
+
     window.draw(topMinutesSprite);
     window.draw(bottomMinutesSprite);
     window.draw(topSecondsSprite);
     window.draw(bottomSecondsSprite);
+}
+
+void TrayGui::click(const sf::RenderWindow& window, const sf::Vector2i& mousePosition, Board& board) {
+    // Figure out which button was clicked
+    sf::Vector2f translatedPosition = window.mapPixelToCoords(mousePosition);
+    for (unsigned i = 0; i < buttonSprites.size(); i++) {
+        if (buttonSprites[i].getGlobalBounds().contains(translatedPosition)) {
+            switch (i) {
+                case face:
+                    // TODO do game reset stuff
+                    break;
+                case pause:
+                    // TODO do pause stuff
+                    break;
+                case lb:
+                    // TODO do leaderboard stuff
+                    break;
+                case debug:
+                    board.setDebug(!board.isDebugMode());
+                    break;
+
+                default:
+                    // Just do nothing if no button was clicked
+                    // TODO might be redundant
+                    return;
+            }
+            // Stop after first button click
+            return;
+        }
+    }
 }

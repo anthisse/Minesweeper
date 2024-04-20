@@ -7,6 +7,14 @@ Board::Board(std::pair<int, int> dimensions, int mineCount) {
     initializeBoard();
 }
 
+std::pair<int,int> Board::getDimensions() const {
+    return this->dimensions;
+}
+
+bool Board::isDebugMode() const {
+    return this->isDebug;
+}
+
 void Board::populateBoard() {
     // Seed the random number generator
     std::random_device rd;
@@ -100,6 +108,15 @@ void Board::setTileFlagged(std::pair<int, int> coords, bool flagged) {
     board[column][row].setFlagged(flagged);
 }
 
+void Board::setDebug(bool debug) {
+    this->isDebug = debug;
+    for (std::vector<Tile>& col : this->board) {
+        for (Tile& tile : col) {
+            tile.setDebug(debug);
+        }
+    }
+}
+
 Tile Board::getTile(std::pair<int, int> coords) {
     int column = coords.first;
     int row = coords.second;
@@ -129,8 +146,9 @@ void Board::print() {
 }
 
 void Board::render(sf::RenderWindow& window, std::vector<sf::Texture>& textures) {
-    for (const auto& col : board) {
-        for (const auto& tile : col) {
+    // TODO should be const!
+    for ( auto& col : board) {
+        for (auto& tile : col) {
             tile.render(window, textures);
         }
     }

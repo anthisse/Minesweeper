@@ -6,6 +6,7 @@ Tile::Tile() {
     this->hasMine = false;
     this->isVisible = false;
     this->hasFlag = false;
+    this->isDebug = false;
 }
 
 // Fully parameterized constructor
@@ -14,6 +15,7 @@ Tile::Tile(std::pair<int, int> coords, bool hasMine, bool isRevealed, bool isFla
     this->hasMine = hasMine;
     this->isVisible = isRevealed;
     this->hasFlag = isFlagged;
+    this->isDebug = false;
     this->neighbors = std::move(neighbors);
 }
 
@@ -23,6 +25,7 @@ Tile::Tile(std::pair<int, int> coords, std::vector<Tile*>& neighbors) {
     this->hasMine = false;
     this->isVisible = false;
     this->hasFlag = false;
+    this->isDebug = false;
     this->neighbors = std::move(neighbors);
 }
 
@@ -30,6 +33,7 @@ Tile::Tile(std::pair<int, int> coords) {
     this->coords = std::move(coords);
     this->hasMine = false;
     this->isVisible = false;
+    this->isDebug = false;
     this->hasFlag = false;
 }
 
@@ -53,6 +57,10 @@ std::pair<int, int> Tile::getCoords() const {
     return this->coords;
 }
 
+bool Tile::isDebugMode() const {
+    return this->isDebug;
+}
+
 void Tile::setMine(bool mine) {
     this->hasMine = mine;
 }
@@ -65,7 +73,12 @@ void Tile::setFlagged(bool flagged) {
     this->hasFlag = flagged;
 }
 
-void Tile::render(sf::RenderWindow& window, std::vector<sf::Texture>& textures) const {
+void Tile::setDebug(bool debug) {
+    this->isDebug = debug;
+}
+
+// TODO should be const
+void Tile::render(sf::RenderWindow& window, std::vector<sf::Texture>& textures) {
     enum textureIndices {
         flag, mine, num1, num2, num3, num4, num5, num6, num7, num8, hidden, revealed
     };
@@ -78,6 +91,10 @@ void Tile::render(sf::RenderWindow& window, std::vector<sf::Texture>& textures) 
     } else {
         renderSprite(window, textures[hidden]);
         if (hasFlag) { renderSprite(window, textures[flag]); }
+    }
+    // Render mines on top if debug mode is on
+    if (isDebugMode() && isMine()) {
+        renderSprite(window, textures[mine]);
     }
 }
 

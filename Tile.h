@@ -11,6 +11,7 @@ private:
     bool hasMine;
     bool isVisible;
     bool hasFlag;
+    bool isDebug;
     std::vector<Tile*> neighbors = {nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr};
 
     void renderSprite(sf::RenderWindow& window, const sf::Texture& texture) const;
@@ -33,6 +34,8 @@ public:
 
     bool isFlagged() const;
 
+    bool isDebugMode() const;
+
     std::pair<int, int> getCoords() const;
 
     std::vector<Tile*> getNeighbors() const;
@@ -43,7 +46,9 @@ public:
 
     void setFlagged(bool flagged);
 
-    void render(sf::RenderWindow& window, std::vector<sf::Texture>& textures) const;
+    void setDebug(bool debug);
+
+    void render(sf::RenderWindow& window, std::vector<sf::Texture>& textures);
 
     // Handle if I was clicked (was there a mine?)
     bool click();

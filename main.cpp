@@ -41,8 +41,6 @@ int main() {
     int rowCount = gameParameters[1];
     int mineCount = gameParameters[2];
 
-    // TODO remove me
-    mineCount = 5;
     std::pair<int, int> dimensions = {colCount, rowCount};
 
     printf("dimensions: %d, %d\n", dimensions.first, dimensions.second);
@@ -136,23 +134,28 @@ void renderGameWindow(sf::RenderWindow& window, Board& board, TrayGui& gui) {
             // Close the window if closed by the OS
             if (event.type == sf::Event::Closed) {
                 window.close();
+                return;
             }
             if (event.type == sf::Event::MouseButtonPressed) {
+                sf::Vector2i mousePosition = sf::Mouse::getPosition(window);
+                sf::Vector2f translatedPosition = window.mapPixelToCoords(mousePosition);
                 if (event.mouseButton.button == sf::Mouse::Left) {
-                printf("lmb pressed\n");
+//                printf("lmb pressed at x=%d, y=%d\n", mousePosition.x, mousePosition.y);
+                gui.click(window, mousePosition, board);
                 std::pair<int, int> foo = {0, 0};
                 board.setTileFlagged(foo, true);
+//                board.setDebug(true);
                 // TODO maybe there should be a function in Board that counts the number of flags
                 gui.incrementFlags();
                 }
                 if (event.mouseButton.button == sf::Mouse::Right) {
-                    printf("rmb pressed\n");
+//                    printf("lmb pressed at x=%d, y=%d\n", mousePosition.x, mousePosition.y);
                     std::pair<int, int> foo = {0, 0};
                     board.setTileFlagged(foo, false);
+//                    board.setDebug(false);
                     gui.decrementFlags();
                 }
             }
-//            if (event.type == sf::Event::MouseButtonPressed)
         }
     window.clear(sf::Color::White);
     board.render(window, tileTextures);
@@ -183,12 +186,10 @@ bool renderWelcomeWindow(sf::RenderWindow& window, std::string& name) {
                 window.close();
                 return true;
             }
-
             // Return once a name is submitted
             if (sf::Keyboard::isKeyPressed(sf::Keyboard::Enter) && !name.empty()) {
                 return false;
             }
-
             // Get name input
             if (event.type == sf::Event::TextEntered) {
                 // Escape sequence for backspace is \b

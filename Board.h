@@ -16,6 +16,7 @@ private:
     std::pair<int, int> dimensions;
     std::vector<std::vector<Tile>> board;
     int mineCount;
+    bool isDebug;
 
     void initializeBoard();
 
@@ -27,11 +28,17 @@ public:
 
     std::vector<std::vector<Tile>> getBoard();
 
+    std::pair<int,int> getDimensions() const;
+
+    bool isDebugMode() const;
+
     void setTileFlagged(std::pair<int, int> coords, bool flagged);
 
     void setTileMine(std::pair<int, int> coords, bool mine);
 
     void setTileRevealed(std::pair<int, int> coords, bool visible);
+
+    void setDebug(bool debug);
 
     // Figure out which tile was clicked
     bool click(std::pair<int, int> coords);
