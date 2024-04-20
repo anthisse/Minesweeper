@@ -10,7 +10,7 @@ Board::Board(std::pair<int, int> dimensions, int mineCount) {
     initializeBoard();
 }
 
-std::pair<int,int> Board::getDimensions() const {
+std::pair<int, int> Board::getDimensions() const {
     return this->dimensions;
 }
 
@@ -51,7 +51,7 @@ void Board::populateBoard() {
 void Board::initializeBoard() {
     std::vector<Tile> colVector;
     std::pair<int, int> coords;
-    std::vector<Tile*> neighbors = {nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr};
+    std::vector<Tile*> neighbors = {};
 
     // Initialize the board with empty Tiles
     for (int col = 0; col < dimensions.first; col++) {
@@ -65,21 +65,23 @@ void Board::initializeBoard() {
     }
     std::vector<std::vector<Tile>> newBoard;
 
+
+    // FIXME something wrong in here, neighbors aren't right. TOP_RIGHT and MID_RIGHT return null sometimes...
     for (int col = 0; col < dimensions.first; col++) {
         for (int row = 0; row < dimensions.second; row++) {
             neighbors = {nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr};
             coords = {col, row};
             neighbors[TOP_LEFT] = (col > 0 && row > 0) ? &board[col - 1][row - 1] : nullptr;
             neighbors[TOP_MID] = (row > 0) ? &board[col][row - 1] : nullptr;
-            neighbors[TOP_RIGHT] = (col < dimensions.first - 1 && row > 0) ? &board[col + 1][row - 1] : nullptr;
+            neighbors[TOP_RIGHT] = (col < dimensions.first - 1 && row > 0) ? &board[col + 1][row - 1] : nullptr; // 2
             // Middle colVector
             neighbors[MID_LEFT] = (col > 0) ? &board[col - 1][row] : nullptr;
-            neighbors[MID_RIGHT] = (col < dimensions.first - 1) ? &board[col + 1][row] : nullptr;
+            neighbors[MID_RIGHT] = (col < dimensions.first - 1) ? &board[col + 1][row] : nullptr; // 4 Wrong
             // Bottom colVector
             neighbors[BOT_LEFT] = (col > 0 && row < dimensions.second) ? &board[col - 1][row + 1] : nullptr;
             neighbors[BOT_MID] = (row < dimensions.second) ? &board[col][row + 1] : nullptr;
-            neighbors[BOT_RIGHT] = (col < dimensions.first && row < dimensions.second) ? &board[col + 1][row + 1]
-                                                                                       : nullptr;
+            neighbors[BOT_RIGHT] = (col < dimensions.first - 1 && row < dimensions.second) // 7 Wrong
+                                   ? &board[col + 1][row + 1] : nullptr;
             Tile tile = Tile(coords, neighbors);
             colVector.push_back(tile);
         }
@@ -88,6 +90,19 @@ void Board::initializeBoard() {
     }
     board = std::move(newBoard);
     populateBoard();
+}
+
+// Figure out which tile was clicked
+Tile* Board::findTileClicked(const sf::RenderWindow& window, const sf::Vector2i& mousePosition) {
+    sf::Vector2f translatedPosition = window.mapPixelToCoords(mousePosition);
+    for (std::vector<Tile>& col: board) {
+        for (Tile& tile: col) {
+            if (tile.getSprite().getGlobalBounds().contains(translatedPosition)) {
+                printf("Clicked at x=%d y=%d\n", tile.getCoords().first, tile.getCoords().second);
+                return &tile;
+            }
+        }
+    }
 }
 
 std::vector<std::vector<Tile>> Board::getBoard() {
@@ -102,8 +117,8 @@ void Board::setTileFlagged(std::pair<int, int> coords, bool flagged) {
 
 void Board::setDebug(bool debug) {
     this->isDebug = debug;
-    for (std::vector<Tile>& col : this->board) {
-        for (Tile& tile : col) {
+    for (std::vector<Tile>& col: this->board) {
+        for (Tile& tile: col) {
             tile.setDebug(debug);
         }
     }
@@ -126,11 +141,37 @@ Tile Board::getTile(std::pair<int, int> coords) {
 
 // Reset the board
 void Board::reset() {
-    for (auto& vec : board) {
+    for (auto& vec: board) {
         vec.clear();
     }
     board.shrink_to_fit();
     initializeBoard();
+}
+
+void Board::click(sf::RenderWindow& window, const sf::Vector2i& mousePosition, const bool& isLmb) {
+    Tile* clickedTile = findTileClicked(window, mousePosition);
+    if (clickedTile->isRevealed()) {
+        return;
+    }
+    if (isLmb) {
+        std::vector<Tile*> neighbors = clickedTile->getNeighbors();
+        for (auto i: neighbors) {
+            if (i != nullptr) {
+                printf("%d ", i->isMine());
+            }
+        }
+        if (clickedTile->isFlagged()) {
+            return;
+        }
+        clickedTile->setRevealed(true);
+        if (clickedTile->isMine()) {
+            gameOver = true;
+            printf("That was a mine. KABOOM!\n");
+
+        }
+    } else {
+        clickedTile->setFlagged(!clickedTile->isFlagged());
+    }
 }
 
 // Since columns are first then rows, this is anti-clockwise rotated 90 degrees!
@@ -155,8 +196,8 @@ void Board::print() {
 
 void Board::render(sf::RenderWindow& window, const std::vector<sf::Texture>& textures) {
     // TODO should be const!
-    for ( auto& col : board) {
-        for (auto& tile : col) {
+    for (auto& col: board) {
+        for (auto& tile: col) {
             tile.render(window, textures, isPaused);
         }
     }
