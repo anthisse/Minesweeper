@@ -15,6 +15,22 @@ std::pair<int, int> Board::getDimensions() const {
     return this->dimensions;
 }
 
+int Board::getFlags() const {
+    int numFlagged = 0;
+    for (const std::vector<Tile>& col : this->board) {
+        for (const Tile& tile : col) {
+            if (tile.isFlagged()) {
+                numFlagged++;
+            }
+        }
+    }
+    return numFlagged;
+}
+
+int Board::getMines() const {
+    return this->mineCount;
+}
+
 bool Board::isDebugMode() const {
     return this->isDebug;
 }
@@ -86,12 +102,6 @@ void Board::initializeBoard() {
         }
     }
     populateBoard();
-
-//    for (const auto& col : board) {
-//        for (auto tile : col) {
-//            tile.print();
-//        }
-//    }
 }
 
 // Figure out which tile was clicked
@@ -111,12 +121,6 @@ Tile* Board::findTileClicked(const sf::RenderWindow& window, const sf::Vector2i&
 
 std::vector<std::vector<Tile>> Board::getBoard() {
     return board;
-}
-
-void Board::setTileFlagged(std::pair<int, int> coords, bool flagged) {
-    int column = coords.first;
-    int row = coords.second;
-    board[column][row].setFlagged(flagged);
 }
 
 void Board::setDebug(bool debug) {

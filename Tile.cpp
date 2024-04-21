@@ -118,6 +118,9 @@ void Tile::render(sf::RenderWindow& window, const std::vector<sf::Texture>& text
     // Render mines on top if debug mode is on
     if (isDebugMode() && isMine()) {
         drawSprite(window, textures[mine]);
+        if (isFlagged()) {
+            drawSprite(window, textures[flag]);
+        }
     }
 }
 

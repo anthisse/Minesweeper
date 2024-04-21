@@ -12,10 +12,6 @@ TrayGui::TrayGui(std::pair<int, int>& boardDimensions, const int& mines) {
     this->gameOver = false;
     this->gameWon = false;
     isDebug = false;
-
-    // TODO instead of having these private members, pass these parameters to renderMinesRemaining by reference
-    this->mines = mines;
-    this->flags = 0;
 }
 
 std::chrono::duration<double, std::milli> TrayGui::updateGameTime() {
@@ -56,24 +52,16 @@ void TrayGui::setGameWon(bool w) {
     this->gameWon = w;
 }
 
-void TrayGui::incrementFlags() {
-    this->flags++;
-}
-
-void TrayGui::decrementFlags() {
-    this->flags--;
-}
-
-void TrayGui::render(sf::RenderWindow& window, std::vector<sf::Texture>& textures) {
+void TrayGui::render(sf::RenderWindow& window, std::vector<sf::Texture>& textures,
+                     const int& numMines, const int& numFlags) {
     enum guiTextures {
         debug, digits, happy, lose, win, lb, pause, play
     };
     sf::Texture digitTexture = textures[digits];
 
-    renderMinesRemaining(window, digitTexture);
+    renderMinesRemaining(window, digitTexture, numMines, numFlags);
 
     // Face button
-    // TODO if (!gameOver) .... track game state with private member
     sf::Sprite gameStateSprite;
     if (!gameOver) {
         gameStateSprite.setTexture(textures[happy]);
@@ -111,7 +99,8 @@ void TrayGui::render(sf::RenderWindow& window, std::vector<sf::Texture>& texture
     renderTimer(window, digitTexture);
 }
 
-void TrayGui::renderMinesRemaining(sf::RenderWindow& window, const sf::Texture& texture) const {
+void TrayGui::renderMinesRemaining(sf::RenderWindow& window, const sf::Texture& texture,
+                                   const int& mines, const int& flags) const {
     int minesRemaining = mines - flags;
     bool negative;
     if (minesRemaining < 0) {

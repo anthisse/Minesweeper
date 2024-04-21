@@ -36,6 +36,10 @@ public:
 
     std::pair<int,int> getDimensions() const;
 
+    int getFlags() const;
+
+    int getMines() const;
+
     bool isDebugMode() const;
 
     bool paused() const;
@@ -43,12 +47,6 @@ public:
     bool isGameOver() const;
 
     bool isGameWon() const;
-
-    void setTileFlagged(std::pair<int, int> coords, bool flagged);
-
-    void setTileMine(std::pair<int, int> coords, bool mine);
-
-    void setTileRevealed(std::pair<int, int> coords, bool visible);
 
     void setDebug(bool debug);
 

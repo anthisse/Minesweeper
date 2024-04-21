@@ -10,7 +10,7 @@
 
 class TrayGui {
 private:
-    std::pair<int,int> boardDimensions;
+    std::pair<int, int> boardDimensions;
     std::chrono::time_point<std::chrono::high_resolution_clock> startTime;
     std::chrono::time_point<std::chrono::high_resolution_clock> endTime;
     std::chrono::time_point<std::chrono::high_resolution_clock> pausedStartTime;
@@ -22,12 +22,8 @@ private:
     bool isDebug;
     std::vector<sf::Sprite> buttonSprites;
 
-    // TODO see TrayGui.cpp
-    int mines;
-    int flags;
-
 public:
-    TrayGui(std::pair<int,int>& boardDimensions, const int& mines);
+    TrayGui(std::pair<int, int>& boardDimensions, const int& mines);
 
     std::chrono::duration<double, std::milli> updateGameTime();
 
@@ -47,11 +43,13 @@ public:
 
     void decrementFlags();
 
-    void render(sf::RenderWindow& window, std::vector<sf::Texture>& textures);
+    void render(sf::RenderWindow& window, std::vector<sf::Texture>& textures,
+                const int& numMines, const int& numFlags);
 
     void renderTimer(sf::RenderWindow& window, const sf::Texture& textures);
 
-    void renderMinesRemaining(sf::RenderWindow& window, const sf::Texture& texture) const;
+    void renderMinesRemaining(sf::RenderWindow& window, const sf::Texture& texture,
+                              const int& mines, const int& flags) const;
 
     void click(sf::RenderWindow& window, const sf::Vector2i& mousePosition,
                const std::vector<sf::Texture>& tileTextures, Board& board);
