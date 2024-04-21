@@ -61,6 +61,8 @@ public:
     // Figure out which tile was clicked
     void click(sf::RenderWindow& window, const sf::Vector2i& mousePosition, const bool& isLmb);
 
+    void recursiveReveal(Tile& tile);
+
     Tile getTile(std::pair<int, int> coords);
 
     // TODO remove after debugging

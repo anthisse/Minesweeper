@@ -59,8 +59,9 @@ public:
 
     void render(sf::RenderWindow& window, const std::vector<sf::Texture>& textures, bool isPaused);
 
-    // Handle if I was clicked (am I a mine?)
-    bool click();
+    int getNumMineNeighbors() const;
+
+    int getNumFlagNeighbors() const;
 };
 
 

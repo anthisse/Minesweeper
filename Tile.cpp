@@ -107,15 +107,7 @@ void Tile::render(sf::RenderWindow& window, const std::vector<sf::Texture>& text
             drawSprite(window, textures[mine]);
             return;  // Return early to avoid drawing numbers over the mine graphic
         }
-        unsigned numMineNeighbors = 0;
-        // Count number of neighbors that are mines
-        for (const auto& neighbor: neighbors) {
-            if (neighbor) {
-                if (neighbor->isMine()) {
-                    numMineNeighbors++;
-                }
-            }
-        }
+        int numMineNeighbors = getNumMineNeighbors();
         if (numMineNeighbors != 0) { drawSprite(window, textures[numMineNeighbors]); }
 
     } else {
@@ -127,6 +119,19 @@ void Tile::render(sf::RenderWindow& window, const std::vector<sf::Texture>& text
     if (isDebugMode() && isMine()) {
         drawSprite(window, textures[mine]);
     }
+}
+
+int Tile::getNumMineNeighbors() const {
+    int numMineNeighbors = 0;
+    // Count number of neighbors that are mines
+    for (const auto& neighbor: neighbors) {
+        if (neighbor) {
+            if (neighbor->isMine()) {
+                numMineNeighbors++;
+            }
+        }
+    }
+    return numMineNeighbors;
 }
 
 // Reset the Tile to a blank Tile

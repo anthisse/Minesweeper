@@ -149,6 +149,8 @@ void renderGameWindow(sf::RenderWindow& window, Board& board, TrayGui& gui) {
         board.render(window, tileTextures);
         gui.render(window, guiTextures);
         window.display();
+        // Save on processing power so the user doesn't think the program is mining bitcoin
+        sf::sleep(sf::seconds(1.0f/60));
     }
 }
 

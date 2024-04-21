@@ -146,7 +146,7 @@ Tile Board::getTile(std::pair<int, int> coords) {
 // Reset the board
 void Board::reset() {
     for (std::vector<Tile>& vec: board) {
-        for (Tile& tile : vec) {
+        for (Tile& tile: vec) {
             tile.reset();
         }
     }
@@ -157,35 +157,20 @@ void Board::reset() {
 
 void Board::click(sf::RenderWindow& window, const sf::Vector2i& mousePosition, const bool& isLmb) {
     Tile* clickedTile = findTileClicked(window, mousePosition);
-    if (clickedTile != nullptr) {
-        printf("clicked tile:\n ");
-        clickedTile->print();
-    } else {
-        printf("Click was outside board, nullptr returned\n");
+    // Split in two statements to ensure isRevealed() is never called on a nullptr (short-circuit eval not guaranteed)
+    if (clickedTile == nullptr) {
         return;
     }
-    int numTiles = 0;
-    for (auto i : board) {
-        for (auto j : i) {
-            numTiles++;
-        }
-    }
-    printf("There are %d tiles\n", numTiles);
-    numTiles = 0;
     if (clickedTile->isRevealed()) {
         return;
     }
     if (isLmb) {
-        std::vector<Tile*> neighbors = clickedTile->getNeighbors();
-        for (auto i: neighbors) {
-            if (i != nullptr) {
-                printf("%d ", i->isMine());
-            }
-        }
         if (clickedTile->isFlagged()) {
             return;
         }
+        std::vector<Tile*> neighbors = clickedTile->getNeighbors();
         clickedTile->setRevealed(true);
+        recursiveReveal(*clickedTile);
         if (clickedTile->isMine()) {
             this->gameOver = true;
             this->gameWon = false;
@@ -193,6 +178,30 @@ void Board::click(sf::RenderWindow& window, const sf::Vector2i& mousePosition, c
         }
     } else {
         clickedTile->setFlagged(!clickedTile->isFlagged());
+    }
+}
+
+// Recursive, guaranteed to be less calls than the size of the board
+void Board::recursiveReveal(Tile& tile) {
+    tile.setRevealed(true);
+    // Base case: Return early if there's a mine next to me
+    if (tile.getNumMineNeighbors() != 0) {
+        return;
+    }
+
+    std::vector<Tile*> neighbors = tile.getNeighbors();
+    for (Tile* neighbor: neighbors) {
+        if (neighbor == nullptr) {
+            continue;
+        }
+        if (neighbor->isRevealed()) {
+            continue;
+        }
+        neighbor->setRevealed(true);
+        neighbor->setFlagged(false);
+        if (neighbor->getNumMineNeighbors() == 0) {
+            recursiveReveal(*neighbor);
+        }
     }
 }
 
