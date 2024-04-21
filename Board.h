@@ -32,10 +32,6 @@ private:
 public:
     explicit Board(std::pair<int, int> dimensions, int mineCount);
 
-    std::vector<std::vector<Tile>> getBoard();
-
-    std::pair<int,int> getDimensions() const;
-
     int getFlags() const;
 
     int getMines() const;
@@ -54,23 +50,18 @@ public:
 
     void setPaused(bool p);
 
-    void setGameOver(bool over);
-
     void reset();
 
-    // Figure out which tile was clicked
     void click(sf::RenderWindow& window, const sf::Vector2i& mousePosition, const bool& isLmb);
 
     void recursiveReveal(Tile& tile);
 
-    Tile getTile(std::pair<int, int> coords);
+    void showMines();
 
-    // TODO remove after debugging
     void print();
 
     void render(sf::RenderWindow& window, const std::vector<sf::Texture>& textures);
 
 };
-
 
 #endif //MINESWEEPER_BOARD_H

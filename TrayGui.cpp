@@ -1,7 +1,7 @@
 #include "TrayGui.h"
 
 // Default constructor
-TrayGui::TrayGui(std::pair<int, int>& boardDimensions, const int& mines) {
+TrayGui::TrayGui(std::pair<int, int>& boardDimensions) {
     this->boardDimensions = boardDimensions;
     startTime = std::chrono::high_resolution_clock::now();
     endTime = std::chrono::high_resolution_clock::now();
@@ -11,7 +11,6 @@ TrayGui::TrayGui(std::pair<int, int>& boardDimensions, const int& mines) {
     paused = false;
     this->gameOver = false;
     this->gameWon = false;
-    isDebug = false;
 }
 
 std::chrono::duration<double, std::milli> TrayGui::updateGameTime() {
@@ -26,22 +25,6 @@ std::chrono::duration<double, std::milli> TrayGui::updateGameTime() {
     }
     auto gameTime = elapsedTotalTime - totalPausedTime;
     return gameTime;
-}
-
-bool TrayGui::isPaused() const {
-    return paused;
-}
-
-bool TrayGui::isDebugOn() const {
-    return this->isDebug;
-}
-
-void TrayGui::setPaused(bool p) {
-    this->paused = p;
-}
-
-void TrayGui::setDebug(bool d) {
-    this->isDebug = d;
 }
 
 void TrayGui::setGameOver(bool g) {

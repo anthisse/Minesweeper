@@ -115,7 +115,7 @@ void Tile::render(sf::RenderWindow& window, const std::vector<sf::Texture>& text
         drawSprite(window, textures[hidden]);
         if (hasFlag) { drawSprite(window, textures[flag]); }
     }
-    // Render mines on top if debug mode is on
+    // Render flags and mines on top if debug mode is on
     if (isDebugMode() && isMine()) {
         drawSprite(window, textures[mine]);
         if (isFlagged()) {

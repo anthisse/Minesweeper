@@ -55,7 +55,7 @@ int main() {
 
     // Create a board and a TrayGui
     Board board = Board(dimensions, mineCount);
-    TrayGui gui = TrayGui(dimensions, mineCount);
+    TrayGui gui = TrayGui(dimensions);
 
     renderGameWindow(gameWindow, board, gui);
     // Load the board
@@ -119,6 +119,7 @@ void renderGameWindow(sf::RenderWindow& window, Board& board, TrayGui& gui) {
         if (board.isGameOver()) {
             gui.setGameOver(true);
             gui.setGameWon(board.isGameWon());
+
         }
         while (window.pollEvent(event)) {
             // Close the window if closed by the OS

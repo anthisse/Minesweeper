@@ -19,29 +19,16 @@ private:
     bool paused;
     bool gameOver;
     bool gameWon;
-    bool isDebug;
     std::vector<sf::Sprite> buttonSprites;
 
 public:
-    TrayGui(std::pair<int, int>& boardDimensions, const int& mines);
+    explicit TrayGui(std::pair<int, int>& boardDimensions);
 
     std::chrono::duration<double, std::milli> updateGameTime();
-
-    bool isPaused() const;
-
-    bool isDebugOn() const;
-
-    void setPaused(bool p);
-
-    void setDebug(bool d);
 
     void setGameOver(bool g);
 
     void setGameWon(bool w);
-
-    void incrementFlags();
-
-    void decrementFlags();
 
     void render(sf::RenderWindow& window, std::vector<sf::Texture>& textures,
                 const int& numMines, const int& numFlags);
@@ -61,6 +48,5 @@ public:
     static sf::Text initializeLeaderboardContentText(const sf::RenderWindow& window, const sf::Font& font);
 
 };
-
 
 #endif //MINESWEEPER_TRAY_GUI_H

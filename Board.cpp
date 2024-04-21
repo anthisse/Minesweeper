@@ -11,10 +11,6 @@ Board::Board(std::pair<int, int> dimensions, int mineCount) {
     initializeBoard();
 }
 
-std::pair<int, int> Board::getDimensions() const {
-    return this->dimensions;
-}
-
 int Board::getFlags() const {
     int numFlagged = 0;
     for (const std::vector<Tile>& col: this->board) {
@@ -61,15 +57,14 @@ bool Board::isGameWon() const {
 
 void Board::populateBoard() {
     // Seed the random number generator and start generating
-    std::random_device rd;
-    std::mt19937 rng(std::chrono::system_clock::now().time_since_epoch().count());
+    std::mt19937 rng(std::chrono::high_resolution_clock::now().time_since_epoch().count());
     std::uniform_int_distribution<> randomCol(0, dimensions.first - 1);
     std::uniform_int_distribution<> randomRow(0, dimensions.second - 1);
     int minesRemaining = mineCount;
     int colCoord;
     int rowCoord;
     while (minesRemaining != 0) {
-        // Reroll if there's already a mine
+        // Re-roll if there's already a mine
         colCoord = randomCol(rng);
         rowCoord = randomRow(rng);
         if (board[colCoord][rowCoord].isMine()) {
@@ -131,10 +126,6 @@ Tile* Board::findTileClicked(const sf::RenderWindow& window, const sf::Vector2i&
     return nullptr;
 }
 
-std::vector<std::vector<Tile>> Board::getBoard() {
-    return board;
-}
-
 void Board::setDebug(bool debug) {
     this->isDebug = debug;
     for (std::vector<Tile>& col: this->board) {
@@ -146,17 +137,6 @@ void Board::setDebug(bool debug) {
 
 void Board::setPaused(bool p) {
     this->isPaused = p;
-}
-
-void Board::setGameOver(bool over) {
-    this->gameOver = over;
-}
-
-Tile Board::getTile(std::pair<int, int> coords) {
-    int column = coords.first;
-    int row = coords.second;
-    std::cout << "accessing board at column " << coords.first << " and row " << coords.second << "\n";
-    return board[column][row];
 }
 
 // Reset the board
@@ -189,12 +169,14 @@ void Board::click(sf::RenderWindow& window, const sf::Vector2i& mousePosition, c
         if (clickedTile->isMine()) {
             this->gameOver = true;
             this->gameWon = false;
+            showMines();
             return;
         }
         int numRevealed = this->getRevealed();
         if (numRevealed == this->dimensions.first * this->dimensions.second - this->mineCount) {
             this->gameOver = true;
             this->gameWon = true;
+            showMines();
             // TODO implement leaderboard
             return;
         }
@@ -203,7 +185,7 @@ void Board::click(sf::RenderWindow& window, const sf::Vector2i& mousePosition, c
     }
 }
 
-// Recursive, guaranteed to be less calls than the size of the board
+// Recursive, guaranteed to be fewer calls than the size of the board
 void Board::recursiveReveal(Tile& tile) {
     tile.setRevealed(true);
     // Base case: Return early if there's a mine next to me
@@ -229,6 +211,17 @@ void Board::recursiveReveal(Tile& tile) {
     }
 }
 
+// Show all the mines
+void Board::showMines() {
+    for (std::vector<Tile>& column : this->board) {
+        for (Tile& tile : column) {
+            if (tile.isMine()) {
+                tile.setRevealed(true);
+            }
+        }
+    }
+}
+
 // Since columns are first then rows, this is anti-clockwise rotated 90 degrees!
 void Board::print() {
     int i = 0;
@@ -250,7 +243,6 @@ void Board::print() {
 }
 
 void Board::render(sf::RenderWindow& window, const std::vector<sf::Texture>& textures) {
-    // TODO should be const!
     for (auto& col: board) {
         for (auto& tile: col) {
             tile.render(window, textures, isPaused);
