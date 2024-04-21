@@ -19,6 +19,7 @@ private:
     int mineCount;
     bool isDebug;
     bool isPaused;
+    bool gameWon;
     bool gameOver;
 
     void initializeBoard();
@@ -40,6 +41,8 @@ public:
     bool paused() const;
 
     bool isGameOver() const;
+
+    bool isGameWon() const;
 
     void setTileFlagged(std::pair<int, int> coords, bool flagged);
 

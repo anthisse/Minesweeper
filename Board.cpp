@@ -6,6 +6,7 @@ Board::Board(std::pair<int, int> dimensions, int mineCount) {
     this->mineCount = mineCount;
     this->isDebug = false;
     this->gameOver = false;
+    this->gameWon = false;
     this->isPaused = false;
     initializeBoard();
 }
@@ -24,6 +25,10 @@ bool Board::paused() const {
 
 bool Board::isGameOver() const {
     return this->gameOver;
+}
+
+bool Board::isGameWon() const {
+    return this->gameWon;
 }
 
 void Board::populateBoard() {
@@ -140,11 +145,14 @@ Tile Board::getTile(std::pair<int, int> coords) {
 
 // Reset the board
 void Board::reset() {
-    for (auto& vec: board) {
-        vec.clear();
+    for (std::vector<Tile>& vec: board) {
+        for (Tile& tile : vec) {
+            tile.reset();
+        }
     }
-    board.shrink_to_fit();
-    initializeBoard();
+    populateBoard();
+    this->gameOver = false;
+    this->gameWon = false;
 }
 
 void Board::click(sf::RenderWindow& window, const sf::Vector2i& mousePosition, const bool& isLmb) {
@@ -179,9 +187,9 @@ void Board::click(sf::RenderWindow& window, const sf::Vector2i& mousePosition, c
         }
         clickedTile->setRevealed(true);
         if (clickedTile->isMine()) {
-            gameOver = true;
+            this->gameOver = true;
+            this->gameWon = false;
             printf("That was a mine. KABOOM!\n");
-
         }
     } else {
         clickedTile->setFlagged(!clickedTile->isFlagged());

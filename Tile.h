@@ -53,6 +53,8 @@ public:
 
     void setNeighbors(std::vector<Tile*>& n);
 
+    void reset();
+
     void print();
 
     void render(sf::RenderWindow& window, const std::vector<sf::Texture>& textures, bool isPaused);

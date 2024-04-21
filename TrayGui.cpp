@@ -9,18 +9,20 @@ TrayGui::TrayGui(std::pair<int, int>& boardDimensions, const int& mines) {
     pausedEndTime = std::chrono::high_resolution_clock::now();
     totalPausedTime = pausedEndTime - pausedStartTime;
     paused = false;
+    this->gameOver = false;
+    this->gameWon = false;
     isDebug = false;
+
     // TODO instead of having these private members, pass these parameters to renderMinesRemaining by reference
     this->mines = mines;
     this->flags = 0;
 }
 
-// TODO does not account for time paused
 std::chrono::duration<double, std::milli> TrayGui::updateGameTime() {
-    std::chrono::duration<double, std::milli> elapsedTotalTime;
+    std::chrono::duration<double, std::milli> elapsedTotalTime = {};
     elapsedTotalTime = endTime - startTime;
     auto elapsedPauseTime = pausedEndTime - pausedStartTime;
-    if (!paused) {
+    if (!paused && !gameOver) {
         endTime = std::chrono::high_resolution_clock::now();
         totalPausedTime += elapsedPauseTime;
         pausedEndTime = std::chrono::high_resolution_clock::now();
@@ -46,6 +48,14 @@ void TrayGui::setDebug(bool d) {
     this->isDebug = d;
 }
 
+void TrayGui::setGameOver(bool g) {
+    this->gameOver = g;
+}
+
+void TrayGui::setGameWon(bool w) {
+    this->gameWon = w;
+}
+
 void TrayGui::incrementFlags() {
     this->flags++;
 }
@@ -64,13 +74,19 @@ void TrayGui::render(sf::RenderWindow& window, std::vector<sf::Texture>& texture
 
     // Face button
     // TODO if (!gameOver) .... track game state with private member
-    sf::Sprite gameStateSprite(textures[happy]);
+    sf::Sprite gameStateSprite;
+    if (!gameOver) {
+        gameStateSprite.setTexture(textures[happy]);
+    } else {
+        gameWon ? gameStateSprite.setTexture(textures[win]) : gameStateSprite.setTexture(textures[lose]);
+    }
+
     gameStateSprite.setPosition(static_cast<float>(boardDimensions.first * 16 - 32),
                                 static_cast<float>(32 * (boardDimensions.second + 0.5)));
     buttonSprites.emplace_back(gameStateSprite);
     window.draw(gameStateSprite);
 
-    // Pause button
+    // Pause button, clickable
     sf::Sprite pauseButtonSprite;
     paused ? pauseButtonSprite.setTexture(textures[play]) : pauseButtonSprite.setTexture(textures[pause]);
     pauseButtonSprite.setPosition(static_cast<float>(boardDimensions.first * 32) - 240,
@@ -187,14 +203,18 @@ void TrayGui::click(sf::RenderWindow& window, const sf::Vector2i& mousePosition,
     sf::Vector2f translatedPosition = window.mapPixelToCoords(mousePosition);
     for (unsigned i = 0; i < buttonSprites.size(); i++) {
         if (buttonSprites[i].getGlobalBounds().contains(translatedPosition)) {
-            // No need for a default label, we don't really care if we don't do anything
+            // No need for a default label, it's okay to do nothing
             switch (i) {
                 case face:
                     printf("face button clicked!\n");
                     // Reset time and the board
                     board.reset();
+                    this->gameOver = false;
+                    this->gameWon = false;
                     startTime = std::chrono::high_resolution_clock::now();
                     endTime = std::chrono::high_resolution_clock::now();
+                    pausedStartTime = std::chrono::high_resolution_clock::now();
+                    pausedEndTime = std::chrono::high_resolution_clock::now();
                     break;
                 case pause:
                     // Unpause the game

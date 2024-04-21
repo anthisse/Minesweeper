@@ -15,8 +15,10 @@ private:
     std::chrono::time_point<std::chrono::high_resolution_clock> endTime;
     std::chrono::time_point<std::chrono::high_resolution_clock> pausedStartTime;
     std::chrono::time_point<std::chrono::high_resolution_clock> pausedEndTime;
-    std::chrono::duration<double, std::milli> totalPausedTime;
+    std::chrono::duration<double, std::milli> totalPausedTime = {};
     bool paused;
+    bool gameOver;
+    bool gameWon;
     bool isDebug;
     std::vector<sf::Sprite> buttonSprites;
 
@@ -36,6 +38,10 @@ public:
     void setPaused(bool p);
 
     void setDebug(bool d);
+
+    void setGameOver(bool g);
+
+    void setGameWon(bool w);
 
     void incrementFlags();
 

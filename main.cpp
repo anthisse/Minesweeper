@@ -115,8 +115,11 @@ void renderGameWindow(sf::RenderWindow& window, Board& board, TrayGui& gui) {
 
     board.print();
     while (window.isOpen()) {
-        gui.updateGameTime();
         sf::Event event{};
+        if (board.isGameOver()) {
+            gui.setGameOver(true);
+            gui.setGameWon(board.isGameWon());
+        }
         while (window.pollEvent(event)) {
             // Close the window if closed by the OS
             if (event.type == sf::Event::Closed) {
@@ -128,18 +131,18 @@ void renderGameWindow(sf::RenderWindow& window, Board& board, TrayGui& gui) {
                 sf::Vector2i mousePosition = sf::Mouse::getPosition(window);
                 if (event.mouseButton.button == sf::Mouse::Left) {
                     isLeftMouseButton = true;
-
+                    if (!board.isGameOver()) {
+                        board.click(window, mousePosition, isLeftMouseButton);
+                    }
                     // TODO maybe there should be a function in Board that counts the number of flags
                 }
                 if (event.mouseButton.button == sf::Mouse::Right) {
                     isLeftMouseButton = false;
+                    if (!board.isGameOver()) {
+                        board.click(window, mousePosition, isLeftMouseButton);
+                    }
                 }
-                board.click(window, mousePosition, isLeftMouseButton);
                 gui.click(window, mousePosition, tileTextures, board);
-                if (board.isGameOver()) {
-                    // TODO Game over things
-                    printf("Game is over!\n");
-                }
             }
         }
         window.clear(sf::Color::White);

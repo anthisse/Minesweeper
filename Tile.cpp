@@ -129,6 +129,13 @@ void Tile::render(sf::RenderWindow& window, const std::vector<sf::Texture>& text
     }
 }
 
+// Reset the Tile to a blank Tile
+void Tile::reset() {
+    this->hasMine = false;
+    this->isVisible = false;
+    this->hasFlag = false;
+}
+
 void Tile::print() {
     std::cout << "Tile [" << coords.first << "," << coords.second << "]: ";
     std::cout << "is a mine? " << isMine() << "; is revealed? " << isRevealed() << "; is flagged? " << isFlagged()
