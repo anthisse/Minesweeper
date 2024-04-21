@@ -292,7 +292,7 @@ void TrayGui::displayLeaderboard() const {
     }
 }
 
-void TrayGui::writeScore(std::pair<std::string, std::string>& newEntry) {
+void TrayGui::writeScore(std::pair<std::string, std::string>& newEntry) const {
     std::fstream leaderboardFile("files/leaderboard.txt", std::ios::in);
     if (!leaderboardFile.good()) {
         throw file_read_exception("Failed to open files/leaderboard.txt!");

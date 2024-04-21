@@ -5,7 +5,6 @@
 #include "TrayGui.h"
 #include "file_read_exception.h"
 
-// todo Perhaps this data structure isn't quite the right thing
 std::vector<int> readConfig();
 
 sf::Text initializeWelcomeText(const sf::RenderWindow& window, const sf::Font& font);
@@ -205,6 +204,7 @@ bool renderWelcomeWindow(sf::RenderWindow& window, std::string& name) {
         window.draw(nameEntryText);
         window.draw(nameEntryField);
         window.display();
+        sf::sleep(sf::seconds(1.0/60));
     }
     return true;
 }

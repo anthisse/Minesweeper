@@ -47,7 +47,7 @@ public:
 
     void displayLeaderboard() const;
 
-    void writeScore(std::pair<std::string, std::string>& newEntry);
+    void writeScore(std::pair<std::string, std::string>& newEntry) const;
 
     static sf::Text initializeLeaderboardHeaderText(const sf::RenderWindow& window, const sf::Font& font);
 
