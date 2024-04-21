@@ -1,5 +1,10 @@
-/cmake-build-debug
-!cmake-build-debug/files
-!cmake-build-debug/files/*
-!cmake-build-debug/Project 3 - Minesweeper Spring 2024.pdf
+#!cmake-build-debug/files
+#!cmake-build-debug/files/*
+cmake-build-debug/.cmake
+cmake-build-debug/CMakeFiles
+cmake-build-debug/Testing
+cmake-build-debug/*ninja*
+cmake-build-debug/cmake_install.cmake
+cmake-build-debug/CMakeCache.txt
+#/cmake-build-debug
 /.idea

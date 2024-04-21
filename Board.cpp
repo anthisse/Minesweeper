@@ -49,13 +49,12 @@ void Board::populateBoard() {
 
 // Initialize an empty board
 void Board::initializeBoard() {
-    std::vector<Tile> colVector;
-    std::pair<int, int> coords;
-    std::vector<Tile*> neighbors = {};
-
     // Initialize the board with empty Tiles
     for (int col = 0; col < dimensions.first; col++) {
+        std::vector<Tile> colVector;
         for (int row = 0; row < dimensions.second; row++) {
+            std::pair<int, int> coords;
+            std::vector<Tile*> neighbors = {};
             coords = {col, row};
             Tile tile = Tile(coords, neighbors);
             colVector.push_back(tile);
@@ -63,33 +62,31 @@ void Board::initializeBoard() {
         board.push_back(colVector);
         colVector.clear();
     }
-    std::vector<std::vector<Tile>> newBoard;
 
-
-    // FIXME something wrong in here, neighbors aren't right. TOP_RIGHT and MID_RIGHT return null sometimes...
     for (int col = 0; col < dimensions.first; col++) {
         for (int row = 0; row < dimensions.second; row++) {
-            neighbors = {nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr};
-            coords = {col, row};
+            std::vector<Tile*> neighbors = {nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr};
             neighbors[TOP_LEFT] = (col > 0 && row > 0) ? &board[col - 1][row - 1] : nullptr;
             neighbors[TOP_MID] = (row > 0) ? &board[col][row - 1] : nullptr;
-            neighbors[TOP_RIGHT] = (col < dimensions.first - 1 && row > 0) ? &board[col + 1][row - 1] : nullptr; // 2
+            neighbors[TOP_RIGHT] = (col < dimensions.first - 1 && row > 0) ? &board[col + 1][row - 1] : nullptr;
             // Middle colVector
             neighbors[MID_LEFT] = (col > 0) ? &board[col - 1][row] : nullptr;
-            neighbors[MID_RIGHT] = (col < dimensions.first - 1) ? &board[col + 1][row] : nullptr; // 4 Wrong
+            neighbors[MID_RIGHT] = (col < dimensions.first - 1) ? &board[col + 1][row] : nullptr;
             // Bottom colVector
-            neighbors[BOT_LEFT] = (col > 0 && row < dimensions.second) ? &board[col - 1][row + 1] : nullptr;
-            neighbors[BOT_MID] = (row < dimensions.second) ? &board[col][row + 1] : nullptr;
-            neighbors[BOT_RIGHT] = (col < dimensions.first - 1 && row < dimensions.second) // 7 Wrong
+            neighbors[BOT_LEFT] = (col > 0 && row < dimensions.second - 1) ? &board[col - 1][row + 1] : nullptr;
+            neighbors[BOT_MID] = (row < dimensions.second - 1) ? &board[col][row + 1] : nullptr;
+            neighbors[BOT_RIGHT] = (col < dimensions.first - 1 && row < dimensions.second - 1)
                                    ? &board[col + 1][row + 1] : nullptr;
-            Tile tile = Tile(coords, neighbors);
-            colVector.push_back(tile);
+            board[col][row].setNeighbors(neighbors);
         }
-        newBoard.push_back(colVector);
-        colVector.clear();
     }
-    board = std::move(newBoard);
     populateBoard();
+
+    for (const auto& col : board) {
+        for (auto tile : col) {
+            tile.print();
+        }
+    }
 }
 
 // Figure out which tile was clicked
@@ -103,6 +100,8 @@ Tile* Board::findTileClicked(const sf::RenderWindow& window, const sf::Vector2i&
             }
         }
     }
+    // Click was not on any Tiles
+    return nullptr;
 }
 
 std::vector<std::vector<Tile>> Board::getBoard() {
@@ -150,6 +149,21 @@ void Board::reset() {
 
 void Board::click(sf::RenderWindow& window, const sf::Vector2i& mousePosition, const bool& isLmb) {
     Tile* clickedTile = findTileClicked(window, mousePosition);
+    if (clickedTile != nullptr) {
+        printf("clicked tile:\n ");
+        clickedTile->print();
+    } else {
+        printf("Click was outside board, nullptr returned\n");
+        return;
+    }
+    int numTiles = 0;
+    for (auto i : board) {
+        for (auto j : i) {
+            numTiles++;
+        }
+    }
+    printf("There are %d tiles\n", numTiles);
+    numTiles = 0;
     if (clickedTile->isRevealed()) {
         return;
     }

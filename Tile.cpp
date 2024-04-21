@@ -1,3 +1,4 @@
+#include <iostream>
 #include "Tile.h"
 
 // Default constructor
@@ -79,7 +80,10 @@ void Tile::setFlagged(bool flagged) {
 
 void Tile::setDebug(bool debug) {
     this->isDebug = debug;
+}
 
+void Tile::setNeighbors(std::vector<Tile*>& n) {
+    this->neighbors = std::move(n);
 }
 
 // TODO should be const
@@ -99,7 +103,10 @@ void Tile::render(sf::RenderWindow& window, const std::vector<sf::Texture>& text
         // Revealed tile
         drawSprite(window, textures[revealed]);
         if (hasFlag) { drawSprite(window, textures[flag]); }
-        if (hasMine) { drawSprite(window, textures[mine]); }
+        if (hasMine) {
+            drawSprite(window, textures[mine]);
+            return;  // Return early to avoid drawing numbers over the mine graphic
+        }
         unsigned numMineNeighbors = 0;
         // Count number of neighbors that are mines
         for (const auto& neighbor: neighbors) {
@@ -120,6 +127,21 @@ void Tile::render(sf::RenderWindow& window, const std::vector<sf::Texture>& text
     if (isDebugMode() && isMine()) {
         drawSprite(window, textures[mine]);
     }
+}
+
+void Tile::print() {
+    std::cout << "Tile [" << coords.first << "," << coords.second << "]: ";
+    std::cout << "is a mine? " << isMine() << "; is revealed? " << isRevealed() << "; is flagged? " << isFlagged() << "; its neighbors are: ";
+    for (int n = 0; n < 8; n++)
+    {
+        Tile *neighbor = neighbors[n];
+        std::cout << "(" << n << ") ";
+        if (neighbor == nullptr)
+            std::cout << "nullptr, ";
+        else
+            std::cout << "[" << neighbor->coords.first << ", " << neighbor->coords.second << "], ";
+    }
+    std::cout << "\n";
 }
 
 void Tile::drawSprite(sf::RenderWindow& window, const sf::Texture& texture) {

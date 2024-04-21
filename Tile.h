@@ -51,6 +51,10 @@ public:
 
     void setDebug(bool debug);
 
+    void setNeighbors(std::vector<Tile*>& n);
+
+    void print();
+
     void render(sf::RenderWindow& window, const std::vector<sf::Texture>& textures, bool isPaused);
 
     // Handle if I was clicked (am I a mine?)
