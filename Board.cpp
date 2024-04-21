@@ -152,6 +152,9 @@ void Board::reset() {
 }
 
 void Board::click(sf::RenderWindow& window, const sf::Vector2i& mousePosition, const bool& isLmb) {
+    if (paused()) {
+        return;
+    }
     Tile* clickedTile = findTileClicked(window, mousePosition);
     // Split in two statements to ensure isRevealed() is never called on a nullptr (short-circuit eval not guaranteed)
     if (clickedTile == nullptr) {
@@ -177,7 +180,7 @@ void Board::click(sf::RenderWindow& window, const sf::Vector2i& mousePosition, c
             this->gameOver = true;
             this->gameWon = true;
             showMines();
-            // TODO implement leaderboard
+
             return;
         }
     } else {

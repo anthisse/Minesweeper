@@ -1,7 +1,8 @@
+#include <sstream>
 #include "TrayGui.h"
 
-// Default constructor
-TrayGui::TrayGui(std::pair<int, int>& boardDimensions) {
+// Constructor
+TrayGui::TrayGui(std::pair<int, int>& boardDimensions, const std::string& n) {
     this->boardDimensions = boardDimensions;
     startTime = std::chrono::high_resolution_clock::now();
     endTime = std::chrono::high_resolution_clock::now();
@@ -9,8 +10,11 @@ TrayGui::TrayGui(std::pair<int, int>& boardDimensions) {
     pausedEndTime = std::chrono::high_resolution_clock::now();
     totalPausedTime = pausedEndTime - pausedStartTime;
     paused = false;
-    this->gameOver = false;
-    this->gameWon = false;
+    gameOver = false;
+    gameWon = false;
+    leaderboardDisplayed = false;
+    name = n;
+    buttonSprites = {};
 }
 
 std::chrono::duration<double, std::milli> TrayGui::updateGameTime() {
@@ -79,7 +83,22 @@ void TrayGui::render(sf::RenderWindow& window, std::vector<sf::Texture>& texture
     buttonSprites.emplace_back(debugSprite);
     window.draw(debugSprite);
 
+    // Timer
     renderTimer(window, digitTexture);
+
+    // Render leaderboard if game was won
+    if (gameWon && !leaderboardDisplayed) {
+        std::chrono::duration<double, std::milli> elapsedGameTimeSeconds = updateGameTime();
+        long long elapsedMinutes = std::chrono::duration_cast<std::chrono::minutes>(elapsedGameTimeSeconds).count();
+        long long elapsedSeconds = std::chrono::duration_cast<std::chrono::seconds>(elapsedGameTimeSeconds).count();
+        // Convert to time format
+        std::stringstream formattedTime;
+        formattedTime << std::setfill('0') << std::setw(2) << elapsedMinutes << ":" << std::setw(2) << elapsedSeconds;
+        std::pair<std::string, std::string> entry = {formattedTime.str(), name};
+        writeScore(entry);
+        displayLeaderboard();
+        leaderboardDisplayed = true;
+    }
 }
 
 void TrayGui::renderMinesRemaining(sf::RenderWindow& window, const sf::Texture& texture,
@@ -183,10 +202,12 @@ void TrayGui::click(sf::RenderWindow& window, const sf::Vector2i& mousePosition,
                     board.reset();
                     this->gameOver = false;
                     this->gameWon = false;
+                    this->leaderboardDisplayed = false;
                     startTime = std::chrono::high_resolution_clock::now();
                     endTime = std::chrono::high_resolution_clock::now();
                     pausedStartTime = std::chrono::high_resolution_clock::now();
                     pausedEndTime = std::chrono::high_resolution_clock::now();
+                    totalPausedTime = pausedStartTime - pausedEndTime;
                     break;
                 case pause:
                     // Unpause the game
@@ -214,7 +235,7 @@ void TrayGui::click(sf::RenderWindow& window, const sf::Vector2i& mousePosition,
                         window.display();
                     }
                     // Open leaderboard window
-                    openLeaderboard();
+                    displayLeaderboard();
 
                     // Once closed, check previous pause state and apply it
                     paused = wasPaused;
@@ -236,13 +257,12 @@ void TrayGui::click(sf::RenderWindow& window, const sf::Vector2i& mousePosition,
     }
 }
 
-void TrayGui::openLeaderboard() const {
+void TrayGui::displayLeaderboard() const {
     sf::RenderWindow lbWindow(sf::VideoMode(boardDimensions.first * 16,
                                             (boardDimensions.second * 16) + 50), "Minesweeper");
 
     sf::Font font;
     if (!font.loadFromFile("files/font.ttf")) {
-        // todo should load an error window
         throw file_read_exception("Failed to load font!");
     }
     sf::Text leaderboardText = initializeLeaderboardHeaderText(lbWindow, font);
@@ -266,6 +286,37 @@ void TrayGui::openLeaderboard() const {
         lbWindow.draw(leaderboardText);
         lbWindow.draw(leaderboardContentText);
         lbWindow.display();
+        // Sleep to avoid hogging system resources
+        sf::sleep(sf::seconds(1.0f/60));
+    }
+}
+
+void TrayGui::writeScore(std::pair<std::string, std::string>& newEntry) {
+    std::fstream leaderboardFile("files/leaderboard.txt", std::ios::in);
+    if (!leaderboardFile.good()) {
+        throw file_read_exception("Failed to open files/leaderboard.txt!");
+    }
+    std::vector<std::pair<std::string, std::string>> lbEntries = {newEntry};
+    std::string contentString;
+    while (!leaderboardFile.eof()) {
+        std::string time;
+        std::string leaderboardName;
+        std::getline(leaderboardFile, time, ',');
+        std::getline(leaderboardFile, leaderboardName, ' '); // Skip the space
+        std::getline(leaderboardFile, leaderboardName, '\n');
+        std::pair<std::string, std::string> lbEntry = {time, leaderboardName};
+        lbEntries.push_back(lbEntry);
+    }
+    std::sort(lbEntries.begin(), lbEntries.end());
+    lbEntries.pop_back();
+    // Done reading, time to write
+    leaderboardFile.close();
+    leaderboardFile.open("files/leaderboard.txt", std::ios::out);
+    for (const auto& entry: lbEntries) {
+        leaderboardFile << entry.first << ", " << entry.second;
+        if (entry != lbEntries.back()) {
+            leaderboardFile << std::endl;
+        }
     }
 }
 
@@ -286,26 +337,7 @@ sf::Text TrayGui::initializeLeaderboardHeaderText(const sf::RenderWindow& window
 }
 
 sf::Text TrayGui::initializeLeaderboardContentText(const sf::RenderWindow& window, const sf::Font& font) {
-    std::ifstream leaderboardFile("files/leaderboard.txt");
-
-    if (!leaderboardFile.good()) {
-        // TODO should open error window
-        throw file_read_exception("Failed to open files/leaderboard.txt!");
-    }
-    std::string contentString;
-    while (!leaderboardFile.eof()) {
-        int iteration;
-        std::string time;
-        std::string name;
-        std::getline(leaderboardFile, time, ',');
-        std::getline(leaderboardFile, name, ' '); // Skip the space
-        std::getline(leaderboardFile, name, '\n');
-
-        // Build content string
-        contentString += std::to_string(iteration) += std::string(".") += std::string("\t") +=
-        time += std::string("\t") += name += std::string("\n\n");
-        iteration++;
-    }
+    std::string contentString = getLeaderboardString();
     sf::Text leaderboardContentText;
     leaderboardContentText.setFont(font);
     leaderboardContentText.setString(contentString);
@@ -319,4 +351,27 @@ sf::Text TrayGui::initializeLeaderboardContentText(const sf::RenderWindow& windo
     leaderboardContentText.setPosition(static_cast<float>(window.getSize().x) / 2.0f,
                                        static_cast<float>(window.getSize().y) / 2.0f + 20);
     return leaderboardContentText;
+}
+
+std::string TrayGui::getLeaderboardString() {
+    std::ifstream leaderboardFile("files/leaderboard.txt");
+    if (!leaderboardFile.good()) {
+        throw file_read_exception("Failed to open files/leaderboard.txt!");
+    }
+    std::string contentString;
+    int iteration = 1;
+    while (!leaderboardFile.eof()) {
+        std::string time;
+        std::string leaderboardName;
+        std::getline(leaderboardFile, time, ',');
+        std::getline(leaderboardFile, leaderboardName, ' '); // Skip the space
+        std::getline(leaderboardFile, leaderboardName, '\n');
+
+        // Build content string
+        contentString += std::to_string(iteration) += std::string(".") += std::string("\t") +=
+        time += std::string("\t") += leaderboardName += std::string("\n\n");
+        iteration++;
+
+    }
+    return contentString;
 }

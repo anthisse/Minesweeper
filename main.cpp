@@ -53,7 +53,7 @@ int main() {
 
     // Create a board and a TrayGui
     Board board = Board(dimensions, mineCount);
-    TrayGui gui = TrayGui(dimensions);
+    TrayGui gui = TrayGui(dimensions, name);
 
     renderGameWindow(gameWindow, board, gui);
     // Load the board
