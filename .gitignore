@@ -1,2 +1,5 @@
 /cmake-build-debug
+!cmake-build-debug/files
+!cmake-build-debug/files/*
+!cmake-build-debug/Project 3 - Minesweeper Spring 2024.pdf
 /.idea
