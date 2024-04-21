@@ -21,6 +21,7 @@ private:
     bool gameWon;
     bool leaderboardDisplayed;
     bool hasSpace;
+    bool lbCurrentlyOpen;
     std::string name;
     std::vector<sf::Sprite> buttonSprites;
 
@@ -41,7 +42,7 @@ public:
     void renderMinesRemaining(sf::RenderWindow& window, const sf::Texture& texture,
                               const int& mines, const int& flags) const;
 
-    void click(sf::RenderWindow& window, const sf::Vector2i& mousePosition,
+    bool click(sf::RenderWindow& window, const sf::Vector2i& mousePosition,
                const std::vector<sf::Texture>& tileTextures, Board& board);
 
     void displayLeaderboard();
