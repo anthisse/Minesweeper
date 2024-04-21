@@ -117,7 +117,6 @@ Tile* Board::findTileClicked(const sf::RenderWindow& window, const sf::Vector2i&
     for (std::vector<Tile>& col: board) {
         for (Tile& tile: col) {
             if (tile.getSprite().getGlobalBounds().contains(translatedPosition)) {
-                printf("Clicked at x=%d y=%d\n", tile.getCoords().first, tile.getCoords().second);
                 return &tile;
             }
         }

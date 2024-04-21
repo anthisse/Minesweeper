@@ -27,11 +27,9 @@ int main() {
 
     std::pair<int, int> dimensions = {colCount, rowCount};
 
-    printf("dimensions: %d, %d\n", dimensions.first, dimensions.second);
-
     // welcomeWindow object
     sf::RenderWindow welcomeWindow(sf::VideoMode(
-            colCount * 32, rowCount * 32 + 100), "Minesweeper");
+            colCount * 32, rowCount * 32 + 100), "Minesweeper", sf::Style::Close);
 
     std::string name;
     // Render the welcome menu
@@ -41,14 +39,13 @@ int main() {
 
     // If no name was entered, then the close button must have been pressed; exit now
     if (name.empty()) {
-        printf("no name entered, must have clicked the X\n");
         return EXIT_SUCCESS;
     }
 
     // After closing the welcome menu create the game window
     welcomeWindow.close();
     sf::RenderWindow gameWindow(sf::VideoMode(
-            colCount * 32, rowCount * 32 + 100), "Minesweeper");
+            colCount * 32, rowCount * 32 + 100), "Minesweeper", sf::Style::Close);
 
     // Create a board and a TrayGui
     Board board = Board(dimensions, mineCount);
@@ -62,7 +59,7 @@ int main() {
 sf::Texture loadTexture(const std::string& fileName) {
     sf::Texture texture;
     if (!texture.loadFromFile(fileName)) {
-        std::cerr << "Game texture " << fileName << " is missing!\n";
+        throw file_read_exception("Textures were missing from directory files/images!");
     }
     return texture;
 }

@@ -204,7 +204,6 @@ void TrayGui::click(sf::RenderWindow& window, const sf::Vector2i& mousePosition,
             // No need for a default label, it's okay to do nothing
             switch (i) {
                 case face:
-                    printf("face button clicked!\n");
                     // Reset time and the board
                     board.reset();
                     this->gameOver = false;

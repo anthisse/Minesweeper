@@ -1,7 +1,6 @@
 #ifndef MINESWEEPER_TRAY_GUI_H
 #define MINESWEEPER_TRAY_GUI_H
 
-#include <iostream>
 #include <chrono>
 #include <fstream>
 #include <iomanip>
