@@ -92,6 +92,9 @@ void TrayGui::render(sf::RenderWindow& window, std::vector<sf::Texture>& texture
         std::chrono::duration<double, std::milli> elapsedGameTimeSeconds = updateGameTime();
         long long elapsedMinutes = std::chrono::duration_cast<std::chrono::minutes>(elapsedGameTimeSeconds).count();
         long long elapsedSeconds = std::chrono::duration_cast<std::chrono::seconds>(elapsedGameTimeSeconds).count();
+        if (elapsedMinutes >= 99) {
+            elapsedMinutes = 99;
+        }
         // Convert to time format
         std::stringstream formattedTime;
         formattedTime << std::setfill('0') << std::setw(2) << elapsedMinutes << ":" << std::setw(2) << elapsedSeconds;
@@ -148,6 +151,9 @@ void TrayGui::renderTimer(sf::RenderWindow& window,
     auto elapsedGameTimeSeconds = updateGameTime();
     long long elapsedMinutes = std::chrono::duration_cast<std::chrono::minutes>(elapsedGameTimeSeconds).count();
     long long elapsedSeconds = std::chrono::duration_cast<std::chrono::seconds>(elapsedGameTimeSeconds).count();
+    if (elapsedMinutes >= 99) {
+        elapsedMinutes = 99;
+    }
 
     // Int divide by ten to get ten's digit and mod by ten to get one's digit
     int topMinutesDigit = static_cast<int>(elapsedMinutes) / 10;
