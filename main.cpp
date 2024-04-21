@@ -1,8 +1,6 @@
 #include <SFML/Graphics.hpp>
-#include <iostream>
-#include <fstream>
-#include <string>
-#include <utility>
+#include <fstream> // For reading and writing .cfg files and leaderboard
+#include <string> // For writing to leaderboard & reading files
 #include "Board.h"
 #include "TrayGui.h"
 #include "file_read_exception.h"
@@ -97,7 +95,6 @@ std::vector<sf::Texture> loadTextures() {
 }
 
 // Main game window
-// TODO create the board inside this function!
 void renderGameWindow(sf::RenderWindow& window, Board& board, TrayGui& gui) {
 
     std::vector<sf::Texture> textures = loadTextures();
@@ -113,7 +110,6 @@ void renderGameWindow(sf::RenderWindow& window, Board& board, TrayGui& gui) {
     std::vector<sf::Texture> guiTextures = {textures[debug], textures[digits], textures[happy], textures[lose],
                                             textures[win], textures[lb], textures[pause], textures[play]};
 
-    board.print();
     while (window.isOpen()) {
         sf::Event event{};
         if (board.isGameOver()) {
@@ -135,7 +131,6 @@ void renderGameWindow(sf::RenderWindow& window, Board& board, TrayGui& gui) {
                     if (!board.isGameOver()) {
                         board.click(window, mousePosition, isLeftMouseButton);
                     }
-                    // TODO maybe there should be a function in Board that counts the number of flags
                 }
                 if (event.mouseButton.button == sf::Mouse::Right) {
                     isLeftMouseButton = false;
@@ -159,7 +154,6 @@ bool renderWelcomeWindow(sf::RenderWindow& window, std::string& name) {
     // Font text
     sf::Font font;
     if (!font.loadFromFile("files/font.ttf")) {
-        // todo should load an error window
         throw file_read_exception("Failed to load font!");
     }
 
@@ -206,7 +200,6 @@ bool renderWelcomeWindow(sf::RenderWindow& window, std::string& name) {
         }
 
         // Draw window elements
-        // FIXME Change back to blue before submission!
         window.clear(sf::Color::Blue);
         window.draw(welcomeText);
         window.draw(nameEntryText);
@@ -220,7 +213,6 @@ std::vector<int> readConfig() {
     // Open the config file
     std::ifstream configFile = std::ifstream("files/config.cfg");
     if (!configFile.good()) {
-        // TODO maybe this should open a window instead of going to standard output
         throw file_read_exception("Failed to open config file config.cfg!");
     }
 
@@ -245,12 +237,9 @@ std::vector<int> readConfig() {
         configFile.close();
         throw file_read_exception("File config.cfg has invalid contents!");
     }
-    // TODO remove, debugging
-    printf("colCount: %d\n", colCount);
-    printf("rowCount: %d\n", rowCount);
-    printf("mineCount: %d\n", mineCount);
 
     std::vector<int> vec = {colCount, rowCount, mineCount};
+    configFile.close();
     return vec;
 
 }

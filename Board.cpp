@@ -222,26 +222,6 @@ void Board::showMines() {
     }
 }
 
-// Since columns are first then rows, this is anti-clockwise rotated 90 degrees!
-void Board::print() {
-    int i = 0;
-    std::cout << "  0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5\n";
-    for (auto& col: board) {
-        std::cout << i << " ";
-        i++;
-        for (int t = 0; t < dimensions.second; t++) {
-            if (col[t].isFlagged()) {
-                std::cout << "^ ";
-            } else if (col[t].isMine()) {
-                std::cout << "* ";
-            } else {
-                std::cout << "- ";
-            }
-        }
-        std::cout << std::endl;
-    }
-}
-
 void Board::render(sf::RenderWindow& window, const std::vector<sf::Texture>& textures) {
     for (auto& col: board) {
         for (auto& tile: col) {

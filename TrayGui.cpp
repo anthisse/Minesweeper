@@ -236,7 +236,7 @@ void TrayGui::click(sf::RenderWindow& window, const sf::Vector2i& mousePosition,
     }
 }
 
-void TrayGui::openLeaderboard() {
+void TrayGui::openLeaderboard() const {
     sf::RenderWindow lbWindow(sf::VideoMode(boardDimensions.first * 16,
                                             (boardDimensions.second * 16) + 50), "Minesweeper");
 

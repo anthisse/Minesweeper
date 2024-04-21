@@ -41,7 +41,7 @@ public:
     void click(sf::RenderWindow& window, const sf::Vector2i& mousePosition,
                const std::vector<sf::Texture>& tileTextures, Board& board);
 
-    void openLeaderboard();
+    void openLeaderboard() const;
 
     static sf::Text initializeLeaderboardHeaderText(const sf::RenderWindow& window, const sf::Font& font);
 

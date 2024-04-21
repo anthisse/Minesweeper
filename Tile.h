@@ -1,7 +1,7 @@
 #ifndef MINESWEEPER_TILE_H
 #define MINESWEEPER_TILE_H
 
-#include <vector>
+#include <vector> // For neighbors
 #include <utility> // Includes std::pair
 #include <SFML/Graphics.hpp>
 
@@ -55,14 +55,10 @@ public:
 
     void reset();
 
-    void print();
-
     void render(sf::RenderWindow& window, const std::vector<sf::Texture>& textures, bool isPaused);
 
     int getNumMineNeighbors() const;
 
-    int getNumFlagNeighbors() const;
 };
-
 
 #endif //MINESWEEPER_TILE_H

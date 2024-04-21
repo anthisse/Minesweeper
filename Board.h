@@ -2,7 +2,6 @@
 #define MINESWEEPER_BOARD_H
 
 #include "Tile.h"
-#include <iostream>
 #include <random>
 #include <utility>
 #include <algorithm>

@@ -144,21 +144,6 @@ void Tile::reset() {
     this->hasFlag = false;
 }
 
-void Tile::print() {
-    std::cout << "Tile [" << coords.first << "," << coords.second << "]: ";
-    std::cout << "is a mine? " << isMine() << "; is revealed? " << isRevealed() << "; is flagged? " << isFlagged()
-              << "; its neighbors are: ";
-    for (int n = 0; n < 8; n++) {
-        Tile* neighbor = neighbors[n];
-        std::cout << "(" << n << ") ";
-        if (neighbor == nullptr)
-            std::cout << "nullptr, ";
-        else
-            std::cout << "[" << neighbor->coords.first << ", " << neighbor->coords.second << "], ";
-    }
-    std::cout << "\n";
-}
-
 void Tile::drawSprite(sf::RenderWindow& window, const sf::Texture& texture) {
     sprite.setTexture(texture);
     // Tiles are 32x32 pixels
