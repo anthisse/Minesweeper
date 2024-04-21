@@ -40,6 +40,8 @@ public:
 
     int getMines() const;
 
+    int getRevealed() const;
+
     bool isDebugMode() const;
 
     bool paused() const;

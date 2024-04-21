@@ -17,8 +17,8 @@ std::pair<int, int> Board::getDimensions() const {
 
 int Board::getFlags() const {
     int numFlagged = 0;
-    for (const std::vector<Tile>& col : this->board) {
-        for (const Tile& tile : col) {
+    for (const std::vector<Tile>& col: this->board) {
+        for (const Tile& tile: col) {
             if (tile.isFlagged()) {
                 numFlagged++;
             }
@@ -29,6 +29,18 @@ int Board::getFlags() const {
 
 int Board::getMines() const {
     return this->mineCount;
+}
+
+int Board::getRevealed() const {
+    int numRevealed = 0;
+    for (const std::vector<Tile>& column : this->board ) {
+        for (const Tile& tile : column) {
+            if (tile.isRevealed()) {
+                numRevealed++;
+            }
+        }
+    }
+    return numRevealed;
 }
 
 bool Board::isDebugMode() const {
@@ -173,12 +185,18 @@ void Board::click(sf::RenderWindow& window, const sf::Vector2i& mousePosition, c
             return;
         }
         std::vector<Tile*> neighbors = clickedTile->getNeighbors();
-        clickedTile->setRevealed(true);
         recursiveReveal(*clickedTile);
         if (clickedTile->isMine()) {
             this->gameOver = true;
             this->gameWon = false;
-            printf("That was a mine. KABOOM!\n");
+            return;
+        }
+        int numRevealed = this->getRevealed();
+        if (numRevealed == this->dimensions.first * this->dimensions.second - this->mineCount) {
+            this->gameOver = true;
+            this->gameWon = true;
+            // TODO implement leaderboard
+            return;
         }
     } else {
         clickedTile->setFlagged(!clickedTile->isFlagged());
@@ -194,6 +212,7 @@ void Board::recursiveReveal(Tile& tile) {
     }
 
     std::vector<Tile*> neighbors = tile.getNeighbors();
+
     for (Tile* neighbor: neighbors) {
         if (neighbor == nullptr) {
             continue;
@@ -205,6 +224,7 @@ void Board::recursiveReveal(Tile& tile) {
         neighbor->setFlagged(false);
         if (neighbor->getNumMineNeighbors() == 0) {
             recursiveReveal(*neighbor);
+
         }
     }
 }
