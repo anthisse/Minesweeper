@@ -282,7 +282,7 @@ sf::Text fillNameEntryField(const sf::RenderWindow& window, const sf::Font& font
     nameEntryField.setString(name);
     nameEntryField.setStyle(sf::Text::Bold);
     nameEntryField.setFillColor(sf::Color::White);
-    nameEntryField.setCharacterSize(20);
+    nameEntryField.setCharacterSize(18);
 
     sf::FloatRect nameEntryFieldRect = nameEntryField.getLocalBounds();
     nameEntryField.setOrigin(nameEntryFieldRect.left + nameEntryFieldRect.width / 2.0f,

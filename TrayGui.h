@@ -44,15 +44,15 @@ public:
     void click(sf::RenderWindow& window, const sf::Vector2i& mousePosition,
                const std::vector<sf::Texture>& tileTextures, Board& board);
 
-    void displayLeaderboard() const;
+    void displayLeaderboard();
 
     void writeScore(std::pair<std::string, std::string>& newEntry) const;
 
     static sf::Text initializeLeaderboardHeaderText(const sf::RenderWindow& window, const sf::Font& font);
 
-    sf::Text initializeLeaderboardContentText(const sf::RenderWindow& window, const sf::Font& font) const;
+    sf::Text initializeLeaderboardContentText(const sf::RenderWindow& window, const sf::Font& font);
 
-    std::string getLeaderboardString(const std::string& lbName) const;
+    std::string getLeaderboardString(const std::string& lbName, const std::string& lbTime) const;
 
     std::string getLeaderboardString() const;
 

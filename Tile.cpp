@@ -102,9 +102,9 @@ void Tile::render(sf::RenderWindow& window, const std::vector<sf::Texture>& text
     if (isVisible) {
         // Revealed tile
         drawSprite(window, textures[revealed]);
-        if (hasFlag) { drawSprite(window, textures[flag]); }
         if (hasMine) {
             drawSprite(window, textures[mine]);
+            // .pdf guidelines say to render the flag behind the mine, but the images in the .pdf don't render the flag
             return;  // Return early to avoid drawing numbers over the mine graphic
         }
         int numMineNeighbors = getNumMineNeighbors();

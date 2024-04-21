@@ -55,8 +55,6 @@ public:
 
     void showMines();
 
-    void print();
-
     void render(sf::RenderWindow& window, const std::vector<sf::Texture>& textures);
 
 };

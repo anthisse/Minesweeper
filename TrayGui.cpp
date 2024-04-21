@@ -263,7 +263,7 @@ void TrayGui::click(sf::RenderWindow& window, const sf::Vector2i& mousePosition,
     }
 }
 
-void TrayGui::displayLeaderboard() const {
+void TrayGui::displayLeaderboard() {
     sf::RenderWindow lbWindow(sf::VideoMode(boardDimensions.first * 16,
                                             (boardDimensions.second * 16) + 50), "Minesweeper");
 
@@ -350,9 +350,18 @@ sf::Text TrayGui::initializeLeaderboardHeaderText(const sf::RenderWindow& window
     return leaderboardText;
 }
 
-sf::Text TrayGui::initializeLeaderboardContentText(const sf::RenderWindow& window, const sf::Font& font) const {
+sf::Text TrayGui::initializeLeaderboardContentText(const sf::RenderWindow& window, const sf::Font& font) {
     std::string contentString;
-    gameOver && gameWon ? contentString = getLeaderboardString(name) : contentString = getLeaderboardString();
+    std::chrono::duration<double, std::milli> elapsedGameTimeSeconds = updateGameTime();
+    long long elapsedMinutes = std::chrono::duration_cast<std::chrono::minutes>(elapsedGameTimeSeconds).count();
+    long long elapsedSeconds = std::chrono::duration_cast<std::chrono::seconds>(elapsedGameTimeSeconds).count();
+    if (elapsedMinutes >= 99) {
+        elapsedMinutes = 99;
+    }
+//    std::string timeString = std::to_string(elapsedMinutes) + ":" + std::to_string(elapsedSeconds);
+    std::stringstream formattedTime;
+    formattedTime << std::setfill('0') << std::setw(2) << elapsedMinutes << ":" << std::setw(2) << elapsedSeconds;
+    gameOver && gameWon ? contentString = getLeaderboardString(name, formattedTime.str()) : contentString = getLeaderboardString();
     sf::Text leaderboardContentText;
     leaderboardContentText.setFont(font);
     leaderboardContentText.setString(contentString);
@@ -368,7 +377,7 @@ sf::Text TrayGui::initializeLeaderboardContentText(const sf::RenderWindow& windo
     return leaderboardContentText;
 }
 
-std::string TrayGui::getLeaderboardString(const std::string& lbName) const {
+std::string TrayGui::getLeaderboardString(const std::string& lbName, const std::string& lbTime) const {
     std::ifstream leaderboardFile("files/leaderboard.txt");
     if (!leaderboardFile.good()) {
         throw file_read_exception("Failed to open files/leaderboard.txt!");
@@ -385,13 +394,14 @@ std::string TrayGui::getLeaderboardString(const std::string& lbName) const {
         std::getline(leaderboardFile, leaderboardName, '\n');
 
         // Build content string
-        contentString += std::to_string(iteration) += std::string(".") += std::string("\t") +=
-        time += std::string("\t") += leaderboardName;
+        contentString.append(std::to_string(iteration)).append(std::string(".")).append
+        ( std::string("\t")).append(time).append(std::string("\t")).append(leaderboardName);
 
-        if (lbName == leaderboardName) {
+        if (lbName == leaderboardName && lbTime == time) {
+            std::cout << "found it!\n";
             contentString += "*";
         }
-        contentString += "\n\n";
+        contentString.append("\n\n");
         iteration++;
 
     }
