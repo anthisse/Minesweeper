@@ -131,10 +131,10 @@ void Tile::render(sf::RenderWindow& window, const std::vector<sf::Texture>& text
 
 void Tile::print() {
     std::cout << "Tile [" << coords.first << "," << coords.second << "]: ";
-    std::cout << "is a mine? " << isMine() << "; is revealed? " << isRevealed() << "; is flagged? " << isFlagged() << "; its neighbors are: ";
-    for (int n = 0; n < 8; n++)
-    {
-        Tile *neighbor = neighbors[n];
+    std::cout << "is a mine? " << isMine() << "; is revealed? " << isRevealed() << "; is flagged? " << isFlagged()
+              << "; its neighbors are: ";
+    for (int n = 0; n < 8; n++) {
+        Tile* neighbor = neighbors[n];
         std::cout << "(" << n << ") ";
         if (neighbor == nullptr)
             std::cout << "nullptr, ";

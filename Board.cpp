@@ -82,11 +82,11 @@ void Board::initializeBoard() {
     }
     populateBoard();
 
-    for (const auto& col : board) {
-        for (auto tile : col) {
-            tile.print();
-        }
-    }
+//    for (const auto& col : board) {
+//        for (auto tile : col) {
+//            tile.print();
+//        }
+//    }
 }
 
 // Figure out which tile was clicked

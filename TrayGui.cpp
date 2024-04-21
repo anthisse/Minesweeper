@@ -263,6 +263,12 @@ void TrayGui::openLeaderboard() {
                 lbWindow.close();
                 return;
             }
+            // Keep leaderboard window on top
+            if (event.type == sf::Event::LostFocus) {
+                lbWindow.requestFocus();
+                // Sleep to prevent window from flickering
+                sf::sleep(sf::milliseconds(10));
+            }
         }
         lbWindow.clear(sf::Color::Blue);
         lbWindow.draw(leaderboardText);

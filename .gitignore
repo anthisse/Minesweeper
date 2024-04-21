@@ -7,4 +7,5 @@ cmake-build-debug/*ninja*
 cmake-build-debug/cmake_install.cmake
 cmake-build-debug/CMakeCache.txt
 #/cmake-build-debug
+cmake-build-debug/*.exe
 /.idea
