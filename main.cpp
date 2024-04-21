@@ -111,7 +111,6 @@ void renderGameWindow(sf::RenderWindow& window, Board& board, TrayGui& gui) {
         if (board.isGameOver()) {
             gui.setGameOver(true);
             gui.setGameWon(board.isGameWon());
-
         }
         while (window.pollEvent(event)) {
             // Close the window if closed by the OS

@@ -60,7 +60,13 @@ void Board::populateBoard() {
     std::mt19937 rng(std::chrono::high_resolution_clock::now().time_since_epoch().count());
     std::uniform_int_distribution<> randomCol(0, dimensions.first - 1);
     std::uniform_int_distribution<> randomRow(0, dimensions.second - 1);
-    int minesRemaining = mineCount;
+    int minesRemaining;
+    // If the config asks for too many mines, just fill the board
+    if (mineCount >= dimensions.first * dimensions.second) {
+        minesRemaining = dimensions.first * dimensions.second;
+    } else {
+        minesRemaining = mineCount;
+    }
     int colCoord;
     int rowCoord;
     while (minesRemaining != 0) {
@@ -159,6 +165,10 @@ void Board::click(sf::RenderWindow& window, const sf::Vector2i& mousePosition, c
     if (clickedTile == nullptr) {
         return;
     }
+    // Move the mine if the first tile clicked is a mine
+    if (getRevealed() == 0 && clickedTile->isMine()) {
+        moveMine(*clickedTile);
+    }
     if (clickedTile->isRevealed()) {
         return;
     }
@@ -184,6 +194,31 @@ void Board::click(sf::RenderWindow& window, const sf::Vector2i& mousePosition, c
         }
     } else {
         clickedTile->setFlagged(!clickedTile->isFlagged());
+    }
+}
+
+void Board::moveMine(Tile& clickedTile) {
+    // If the board is full or full -1 for some reason, do nothing (avoid infinite loop and a guaranteed win).
+    if (mineCount - 1 >= dimensions.first * dimensions.second) {
+        return;
+    }
+    clickedTile.setMine(false);
+    std::mt19937 rng(std::chrono::high_resolution_clock::now().time_since_epoch().count());
+    std::uniform_int_distribution<> randomCol(0, dimensions.first - 1);
+    std::uniform_int_distribution<> randomRow(0, dimensions.second - 1);
+    int colCoord;
+    int rowCoord;
+    bool mineSet = false;
+    while (!mineSet) {
+        // Re-roll if there's already a mine
+        colCoord = randomCol(rng);
+        rowCoord = randomRow(rng);
+        if (board[colCoord][rowCoord].isMine()) {
+            continue;
+        } else {
+            board[colCoord][rowCoord].setMine(true);
+            mineSet = true;
+        }
     }
 }
 

@@ -57,6 +57,7 @@ public:
 
     void render(sf::RenderWindow& window, const std::vector<sf::Texture>& textures);
 
+    void moveMine(Tile& clickedTile);
 };
 
 #endif //MINESWEEPER_BOARD_H
