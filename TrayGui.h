@@ -21,6 +21,7 @@ private:
     bool gameOver;
     bool gameWon;
     bool leaderboardDisplayed;
+    bool hasSpace;
     std::string name;
     std::vector<sf::Sprite> buttonSprites;
 
@@ -46,13 +47,17 @@ public:
 
     void displayLeaderboard() const;
 
-    static void writeScore(std::pair<std::string, std::string>& newEntry);
+    void writeScore(std::pair<std::string, std::string>& newEntry);
 
     static sf::Text initializeLeaderboardHeaderText(const sf::RenderWindow& window, const sf::Font& font);
 
-    static sf::Text initializeLeaderboardContentText(const sf::RenderWindow& window, const sf::Font& font);
+    sf::Text initializeLeaderboardContentText(const sf::RenderWindow& window, const sf::Font& font) const;
 
-    static std::string getLeaderboardString();
+    std::string getLeaderboardString(const std::string& lbName) const;
+
+    std::string getLeaderboardString() const;
+
+    static bool hasSpaces();
 };
 
 #endif //MINESWEEPER_TRAY_GUI_H

@@ -15,6 +15,7 @@ TrayGui::TrayGui(std::pair<int, int>& boardDimensions, const std::string& n) {
     leaderboardDisplayed = false;
     name = n;
     buttonSprites = {};
+    hasSpace = hasSpaces();
 }
 
 std::chrono::duration<double, std::milli> TrayGui::updateGameTime() {
@@ -287,7 +288,7 @@ void TrayGui::displayLeaderboard() const {
         lbWindow.draw(leaderboardContentText);
         lbWindow.display();
         // Sleep to avoid hogging system resources
-        sf::sleep(sf::seconds(1.0f/60));
+        sf::sleep(sf::seconds(1.0f / 60));
     }
 }
 
@@ -302,7 +303,10 @@ void TrayGui::writeScore(std::pair<std::string, std::string>& newEntry) {
         std::string time;
         std::string leaderboardName;
         std::getline(leaderboardFile, time, ',');
-        std::getline(leaderboardFile, leaderboardName, ' '); // Skip the space
+        // Skip the space
+        if (hasSpace) {
+            std::getline(leaderboardFile, leaderboardName, ' ');
+        }
         std::getline(leaderboardFile, leaderboardName, '\n');
         std::pair<std::string, std::string> lbEntry = {time, leaderboardName};
         lbEntries.push_back(lbEntry);
@@ -313,7 +317,12 @@ void TrayGui::writeScore(std::pair<std::string, std::string>& newEntry) {
     leaderboardFile.close();
     leaderboardFile.open("files/leaderboard.txt", std::ios::out);
     for (const auto& entry: lbEntries) {
-        leaderboardFile << entry.first << ", " << entry.second;
+        if (hasSpace) {
+            leaderboardFile << entry.first << ", " << entry.second;
+        } else {
+            leaderboardFile << entry.first << "," << entry.second;
+
+        }
         if (entry != lbEntries.back()) {
             leaderboardFile << std::endl;
         }
@@ -336,8 +345,9 @@ sf::Text TrayGui::initializeLeaderboardHeaderText(const sf::RenderWindow& window
     return leaderboardText;
 }
 
-sf::Text TrayGui::initializeLeaderboardContentText(const sf::RenderWindow& window, const sf::Font& font) {
-    std::string contentString = getLeaderboardString();
+sf::Text TrayGui::initializeLeaderboardContentText(const sf::RenderWindow& window, const sf::Font& font) const {
+    std::string contentString;
+    gameOver && gameWon ? contentString = getLeaderboardString(name) : contentString = getLeaderboardString();
     sf::Text leaderboardContentText;
     leaderboardContentText.setFont(font);
     leaderboardContentText.setString(contentString);
@@ -353,7 +363,7 @@ sf::Text TrayGui::initializeLeaderboardContentText(const sf::RenderWindow& windo
     return leaderboardContentText;
 }
 
-std::string TrayGui::getLeaderboardString() {
+std::string TrayGui::getLeaderboardString(const std::string& lbName) const {
     std::ifstream leaderboardFile("files/leaderboard.txt");
     if (!leaderboardFile.good()) {
         throw file_read_exception("Failed to open files/leaderboard.txt!");
@@ -364,14 +374,67 @@ std::string TrayGui::getLeaderboardString() {
         std::string time;
         std::string leaderboardName;
         std::getline(leaderboardFile, time, ',');
-        std::getline(leaderboardFile, leaderboardName, ' '); // Skip the space
+        if (hasSpace) {
+            std::getline(leaderboardFile, leaderboardName, ' ');
+        }
         std::getline(leaderboardFile, leaderboardName, '\n');
 
         // Build content string
         contentString += std::to_string(iteration) += std::string(".") += std::string("\t") +=
-        time += std::string("\t") += leaderboardName += std::string("\n\n");
+        time += std::string("\t") += leaderboardName;
+
+        if (lbName == leaderboardName) {
+            contentString += "*";
+        }
+        contentString += "\n\n";
         iteration++;
 
     }
     return contentString;
 }
+
+std::string TrayGui::getLeaderboardString() const {
+    std::ifstream leaderboardFile("files/leaderboard.txt");
+    if (!leaderboardFile.good()) {
+        throw file_read_exception("Failed to open files/leaderboard.txt!");
+    }
+    std::string contentString;
+    std::stringstream buffer;
+    int iteration = 1;
+    // Jump to beginning of file and clear the eof bit
+    leaderboardFile.clear();
+    leaderboardFile.seekg(0, std::ios::beg);
+    while (!leaderboardFile.eof()) {
+        std::string time;
+        std::string leaderboardName;
+        std::getline(leaderboardFile, time, ',');
+        // Skip the space if the original file has spaces
+        if (hasSpace) {
+            std::getline(leaderboardFile, leaderboardName, ' ');
+        }
+        std::getline(leaderboardFile, leaderboardName, '\n');
+
+        // Build content string
+        contentString += std::to_string(iteration) += std::string(".") += std::string("\t") +=
+        time += std::string("\t") += leaderboardName += "\n\n";
+        iteration++;
+    }
+    return contentString;
+}
+
+bool TrayGui::hasSpaces() {
+    std::ifstream leaderboardFile("files/leaderboard.txt");
+    if (!leaderboardFile.good()) {
+        throw file_read_exception("Failed to open files/leaderboard.txt!");
+    }
+    char c;
+    while (leaderboardFile >> std::noskipws >> c) {
+        if (c == ' ') {
+            leaderboardFile.close();
+            return true;
+        }
+    }
+    leaderboardFile.close();
+    return false;
+}
+
