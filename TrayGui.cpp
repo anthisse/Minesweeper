@@ -14,8 +14,10 @@ TrayGui::TrayGui(std::pair<int, int>& boardDimensions, const std::string& n) {
     gameWon = false;
     leaderboardDisplayed = false;
     name = n;
+    lbCurrentlyOpen = false;
     buttonSprites = {};
     hasSpace = hasSpaces();
+
 }
 
 std::chrono::duration<double, std::milli> TrayGui::updateGameTime() {
@@ -100,6 +102,7 @@ void TrayGui::render(sf::RenderWindow& window, std::vector<sf::Texture>& texture
         formattedTime << std::setfill('0') << std::setw(2) << elapsedMinutes << ":" << std::setw(2) << elapsedSeconds;
         std::pair<std::string, std::string> entry = {formattedTime.str(), name};
         writeScore(entry);
+        window.display();
         displayLeaderboard();
         leaderboardDisplayed = true;
     }
@@ -188,7 +191,7 @@ void TrayGui::renderTimer(sf::RenderWindow& window,
     window.draw(bottomSecondsSprite);
 }
 
-void TrayGui::click(sf::RenderWindow& window, const sf::Vector2i& mousePosition,
+bool TrayGui::click(sf::RenderWindow& window, const sf::Vector2i& mousePosition,
                     const std::vector<sf::Texture>& tileTextures, Board& board) {
     enum buttonSpritesIndices {
         face, pause, lb, debug
@@ -197,6 +200,7 @@ void TrayGui::click(sf::RenderWindow& window, const sf::Vector2i& mousePosition,
         flag, mine, num1, num2, num3, num4, num5, num6, num7, num8, hidden, revealed
     };
 
+    lbCurrentlyOpen = false;
     // Figure out which button was clicked
     sf::Vector2f translatedPosition = window.mapPixelToCoords(mousePosition);
     for (unsigned i = 0; i < buttonSprites.size(); i++) {
@@ -216,6 +220,9 @@ void TrayGui::click(sf::RenderWindow& window, const sf::Vector2i& mousePosition,
                     totalPausedTime = pausedStartTime - pausedEndTime;
                     break;
                 case pause:
+                    if (gameOver) {
+                        break;
+                    }
                     // Unpause the game
                     if (board.paused()) {
                         this->paused = false;
@@ -233,16 +240,14 @@ void TrayGui::click(sf::RenderWindow& window, const sf::Vector2i& mousePosition,
                     bool wasPaused;
                     wasPaused = paused;
                     // Pause the game
-                    if (!paused) {
-                        this->paused = true;
-                        board.setPaused(true);
-                        pausedStartTime = std::chrono::high_resolution_clock::now();
-                        board.render(window, tileTextures);
-                        window.display();
-                    }
+                    this->paused = true;
+                    board.setPaused(true);
+                    pausedStartTime = std::chrono::high_resolution_clock::now();
+                    board.render(window, tileTextures);
+                    window.display();
                     // Open leaderboard window
+                    lbCurrentlyOpen = true;
                     displayLeaderboard();
-
                     // Once closed, check previous pause state and apply it
                     paused = wasPaused;
                     board.setPaused(wasPaused);
@@ -253,19 +258,22 @@ void TrayGui::click(sf::RenderWindow& window, const sf::Vector2i& mousePosition,
                     window.display();
                     break;
                 case debug:
+                    if (gameOver) {
+                        break;
+                    }
                     // Toggle debug mode
                     board.setDebug(!board.isDebugMode());
                     break;
             }
             // Stop after first button click
-            return;
+            return lbCurrentlyOpen;
         }
     }
 }
 
 void TrayGui::displayLeaderboard() {
     sf::RenderWindow lbWindow(sf::VideoMode(boardDimensions.first * 16,
-                                            (boardDimensions.second * 16) + 50), "Minesweeper");
+                                            (boardDimensions.second * 16) + 50), "Minesweeper", sf::Style::Close);
 
     sf::Font font;
     if (!font.loadFromFile("files/font.ttf")) {
@@ -277,15 +285,13 @@ void TrayGui::displayLeaderboard() {
     while (lbWindow.isOpen()) {
         sf::Event event{};
         while (lbWindow.pollEvent(event)) {
-            if (event.type == sf::Event::Closed || event.type == sf::Keyboard::isKeyPressed(sf::Keyboard::Escape)) {
+            if (event.type == sf::Event::Closed) {
                 lbWindow.close();
                 return;
             }
             // Keep leaderboard window on top
             if (event.type == sf::Event::LostFocus) {
                 lbWindow.requestFocus();
-                // Sleep to prevent window from flickering
-                sf::sleep(sf::milliseconds(10));
             }
         }
         lbWindow.clear(sf::Color::Blue);
@@ -293,7 +299,6 @@ void TrayGui::displayLeaderboard() {
         lbWindow.draw(leaderboardContentText);
         lbWindow.display();
         // Sleep to avoid hogging system resources
-        sf::sleep(sf::seconds(1.0f / 60));
     }
 }
 
@@ -361,7 +366,8 @@ sf::Text TrayGui::initializeLeaderboardContentText(const sf::RenderWindow& windo
 //    std::string timeString = std::to_string(elapsedMinutes) + ":" + std::to_string(elapsedSeconds);
     std::stringstream formattedTime;
     formattedTime << std::setfill('0') << std::setw(2) << elapsedMinutes << ":" << std::setw(2) << elapsedSeconds;
-    gameOver && gameWon ? contentString = getLeaderboardString(name, formattedTime.str()) : contentString = getLeaderboardString();
+    gameOver && gameWon ? contentString = getLeaderboardString(name, formattedTime.str())
+                        : contentString = getLeaderboardString();
     sf::Text leaderboardContentText;
     leaderboardContentText.setFont(font);
     leaderboardContentText.setString(contentString);
@@ -395,7 +401,7 @@ std::string TrayGui::getLeaderboardString(const std::string& lbName, const std::
 
         // Build content string
         contentString.append(std::to_string(iteration)).append(std::string(".")).append
-        ( std::string("\t")).append(time).append(std::string("\t")).append(leaderboardName);
+                (std::string("\t")).append(time).append(std::string("\t")).append(leaderboardName);
 
         if (lbName == leaderboardName && lbTime == time) {
             contentString += "*";

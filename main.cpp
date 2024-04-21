@@ -106,7 +106,11 @@ void renderGameWindow(sf::RenderWindow& window, Board& board, TrayGui& gui) {
     std::vector<sf::Texture> guiTextures = {textures[debug], textures[digits], textures[happy], textures[lose],
                                             textures[win], textures[lb], textures[pause], textures[play]};
 
+    bool lbCurrentlyOpen;
     while (window.isOpen()) {
+        if (lbCurrentlyOpen) {
+            continue;
+        }
         sf::Event event{};
         if (board.isGameOver()) {
             gui.setGameOver(true);
@@ -118,12 +122,13 @@ void renderGameWindow(sf::RenderWindow& window, Board& board, TrayGui& gui) {
                 window.close();
                 return;
             }
-            if (event.type == sf::Event::MouseButtonPressed) {
+            if (event.type == sf::Event::MouseButtonPressed && window.hasFocus()) {
                 bool isLeftMouseButton;
                 sf::Vector2i mousePosition = sf::Mouse::getPosition(window);
+                lbCurrentlyOpen = gui.click(window, mousePosition, tileTextures, board);
                 if (event.mouseButton.button == sf::Mouse::Left) {
                     isLeftMouseButton = true;
-                    if (!board.isGameOver()) {
+                    if (!board.isGameOver() && !board.paused()) {
                         board.click(window, mousePosition, isLeftMouseButton);
                     }
                 }
@@ -133,7 +138,6 @@ void renderGameWindow(sf::RenderWindow& window, Board& board, TrayGui& gui) {
                         board.click(window, mousePosition, isLeftMouseButton);
                     }
                 }
-                gui.click(window, mousePosition, tileTextures, board);
             }
         }
         window.clear(sf::Color::White);
@@ -141,7 +145,7 @@ void renderGameWindow(sf::RenderWindow& window, Board& board, TrayGui& gui) {
         gui.render(window, guiTextures, board.getMines(), board.getFlags());
         window.display();
         // Save on processing power so the user doesn't think the program is mining bitcoin
-        sf::sleep(sf::seconds(1.0f/60));
+        sf::sleep(sf::seconds(1.0f / 60));
     }
 }
 
@@ -200,7 +204,7 @@ bool renderWelcomeWindow(sf::RenderWindow& window, std::string& name) {
         window.draw(nameEntryText);
         window.draw(nameEntryField);
         window.display();
-        sf::sleep(sf::seconds(1.0/60));
+        sf::sleep(sf::seconds(1.0 / 60));
     }
     return true;
 }
