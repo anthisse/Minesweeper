@@ -342,9 +342,9 @@ sf::Text TrayGui::initializeLeaderboardHeaderText(const sf::RenderWindow& window
     leaderboardText.setFillColor(sf::Color::White);
     leaderboardText.setCharacterSize(20);
 
-    sf::FloatRect welcomeTextRect = leaderboardText.getLocalBounds();
-    leaderboardText.setOrigin(welcomeTextRect.left + welcomeTextRect.width / 2.0f,
-                              welcomeTextRect.top + welcomeTextRect.height / 2.0f);
+    sf::FloatRect lbTextRect = leaderboardText.getLocalBounds();
+    leaderboardText.setOrigin(lbTextRect.left + lbTextRect.width / 2.0f,
+                              lbTextRect.top + lbTextRect.height / 2.0f);
     leaderboardText.setPosition(static_cast<float>(window.getSize().x) / 2.0f,
                                 static_cast<float>(window.getSize().y) / 2.0f - 120);
     return leaderboardText;
@@ -398,7 +398,6 @@ std::string TrayGui::getLeaderboardString(const std::string& lbName, const std::
         ( std::string("\t")).append(time).append(std::string("\t")).append(leaderboardName);
 
         if (lbName == leaderboardName && lbTime == time) {
-            std::cout << "found it!\n";
             contentString += "*";
         }
         contentString.append("\n\n");

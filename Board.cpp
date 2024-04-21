@@ -189,6 +189,9 @@ void Board::click(sf::RenderWindow& window, const sf::Vector2i& mousePosition, c
 
 // Recursive, guaranteed to be fewer calls than the size of the board
 void Board::recursiveReveal(Tile& tile) {
+    if (tile.isMine()) {
+        return;
+    }
     tile.setRevealed(true);
     // Base case: Return early if there's a mine next to me
     if (tile.getNumMineNeighbors() != 0) {
