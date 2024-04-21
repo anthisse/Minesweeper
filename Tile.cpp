@@ -16,7 +16,7 @@ Tile::Tile(std::pair<int, int> coords, bool hasMine, bool isRevealed, bool isFla
     this->isVisible = isRevealed;
     this->hasFlag = isFlagged;
     this->isDebug = false;
-    this->neighbors = std::move(neighbors);
+    this->neighbors = neighbors;
 }
 
 // Parameterized constructor with position and neighbors
@@ -26,7 +26,7 @@ Tile::Tile(std::pair<int, int> coords, std::vector<Tile*>& neighbors) {
     this->isVisible = false;
     this->hasFlag = false;
     this->isDebug = false;
-    this->neighbors = std::move(neighbors);
+    this->neighbors = neighbors;
 }
 
 Tile::Tile(std::pair<int, int> coords) {
@@ -61,6 +61,10 @@ bool Tile::isDebugMode() const {
     return this->isDebug;
 }
 
+sf::Sprite Tile::getSprite() const {
+    return this->sprite;
+}
+
 void Tile::setMine(bool mine) {
     this->hasMine = mine;
 }
@@ -77,35 +81,49 @@ void Tile::setDebug(bool debug) {
     this->isDebug = debug;
 
 }
+
 // TODO should be const
 void Tile::render(sf::RenderWindow& window, const std::vector<sf::Texture>& textures, const bool isPaused) {
     enum textureIndices {
-        flag, mine, num1, num2, num3, num4, num5, num6, num7, num8, hidden, revealed
+        flag, num1, num2, num3, num4, num5, num6, num7, num8, mine, hidden, revealed
     };
 
     // Only render the revealed texture if the game is paused
     if (isPaused) {
-        renderSprite(window, textures[revealed]);
+        drawSprite(window, textures[revealed]);
         return;
     }
 
     // Tile background
     if (isVisible) {
-        renderSprite(window,textures[revealed]);
-        if (hasFlag) { renderSprite(window, textures[flag]); }
-        if (hasMine) { renderSprite(window,textures[mine]); }
+        // Revealed tile
+        drawSprite(window, textures[revealed]);
+        if (hasFlag) { drawSprite(window, textures[flag]); }
+        if (hasMine) { drawSprite(window, textures[mine]); }
+        unsigned numMineNeighbors = 0;
+        // Count number of neighbors that are mines
+        for (const auto& neighbor: neighbors) {
+            if (neighbor) {
+                if (neighbor->isMine()) {
+                    numMineNeighbors++;
+                }
+            }
+        }
+        if (numMineNeighbors != 0) { drawSprite(window, textures[numMineNeighbors]); }
+
     } else {
-        renderSprite(window, textures[hidden]);
-        if (hasFlag) { renderSprite(window, textures[flag]); }
+        // Hidden tile, not yet clicked
+        drawSprite(window, textures[hidden]);
+        if (hasFlag) { drawSprite(window, textures[flag]); }
     }
     // Render mines on top if debug mode is on
     if (isDebugMode() && isMine()) {
-        renderSprite(window, textures[mine]);
+        drawSprite(window, textures[mine]);
     }
 }
 
-void Tile::renderSprite(sf::RenderWindow& window, const sf::Texture& texture) const {
-    sf::Sprite sprite(texture);
+void Tile::drawSprite(sf::RenderWindow& window, const sf::Texture& texture) {
+    sprite.setTexture(texture);
     // Tiles are 32x32 pixels
     sprite.setPosition(static_cast<float>(coords.first) * 32, static_cast<float>(coords.second) * 32);
     window.draw(sprite);

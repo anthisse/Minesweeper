@@ -25,6 +25,8 @@ private:
 
     void populateBoard();
 
+    Tile* findTileClicked(const sf::RenderWindow& window, const sf::Vector2i& mousePosition);
+
 
 public:
     explicit Board(std::pair<int, int> dimensions, int mineCount);
@@ -54,7 +56,7 @@ public:
     void reset();
 
     // Figure out which tile was clicked
-    bool click(std::pair<int, int> coords);
+    void click(sf::RenderWindow& window, const sf::Vector2i& mousePosition, const bool& isLmb);
 
     Tile getTile(std::pair<int, int> coords);
 
