@@ -99,7 +99,7 @@ void TrayGui::render(sf::RenderWindow& window, std::vector<sf::Texture>& texture
         }
         // Convert to time format
         std::stringstream formattedTime;
-        formattedTime << std::setfill('0') << std::setw(2) << elapsedMinutes << ":" << std::setw(2) << elapsedSeconds;
+        formattedTime << std::setfill('0') << std::setw(2) << elapsedMinutes << ":" << std::setw(2) << elapsedSeconds % 60;
         std::pair<std::string, std::string> entry = {formattedTime.str(), name};
         writeScore(entry);
         window.display();
@@ -363,9 +363,8 @@ sf::Text TrayGui::initializeLeaderboardContentText(const sf::RenderWindow& windo
     if (elapsedMinutes >= 99) {
         elapsedMinutes = 99;
     }
-//    std::string timeString = std::to_string(elapsedMinutes) + ":" + std::to_string(elapsedSeconds);
     std::stringstream formattedTime;
-    formattedTime << std::setfill('0') << std::setw(2) << elapsedMinutes << ":" << std::setw(2) << elapsedSeconds;
+    formattedTime << std::setfill('0') << std::setw(2) << elapsedMinutes << ":" << std::setw(2) << elapsedSeconds % 60;
     gameOver && gameWon ? contentString = getLeaderboardString(name, formattedTime.str())
                         : contentString = getLeaderboardString();
     sf::Text leaderboardContentText;
