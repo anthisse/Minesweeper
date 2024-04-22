@@ -128,6 +128,13 @@ void renderGameWindow(sf::RenderWindow& window, Board& board, TrayGui& gui) {
                 bool isLeftMouseButton;
                 sf::Vector2i mousePosition = sf::Mouse::getPosition(window);
                 lbCurrentlyOpen = gui.click(window, mousePosition, tileTextures, board);
+                if (lbCurrentlyOpen) {
+                    // Flush event queue to remove stray left clicks from hitting the game window
+                    while (window.pollEvent(event)) {
+                        // polling event queue pops them, don't need to do anything here
+                    }
+                    break;
+                }
                 if (event.mouseButton.button == sf::Mouse::Left) {
                     isLeftMouseButton = true;
                     if (!board.isGameOver() && !board.paused()) {

@@ -302,6 +302,8 @@ void TrayGui::displayLeaderboard() {
         lbWindow.draw(leaderboardContentText);
         lbWindow.display();
         // Sleep to avoid hogging system resources
+        sf::sleep(sf::milliseconds(25));
+
     }
 }
 
