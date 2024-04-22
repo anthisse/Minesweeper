@@ -245,12 +245,14 @@ bool TrayGui::click(sf::RenderWindow& window, const sf::Vector2i& mousePosition,
                         this->paused = true;
                         board.setPaused(true);
                         pausedStartTime = std::chrono::high_resolution_clock::now();
+                        board.render(window, tileTextures);
+                        window.display();
                     }
-                    board.render(window, tileTextures);
-                    window.display();
                     // Open leaderboard window
-                    lbCurrentlyOpen = true;
+                    printf("about to display\n");
                     displayLeaderboard();
+                    printf("done displaying\n");
+                    lbCurrentlyOpen = true;
                     // Once closed, check previous pause state and apply it
                     paused = wasPaused;
                     board.setPaused(wasPaused);
@@ -259,6 +261,7 @@ bool TrayGui::click(sf::RenderWindow& window, const sf::Vector2i& mousePosition,
                     }
                     pausedEndTime = std::chrono::high_resolution_clock::now();
                     window.display();
+                    printf("about to break out\n");
                     break;
                 case debug:
                     if (gameOver) {
@@ -269,6 +272,7 @@ bool TrayGui::click(sf::RenderWindow& window, const sf::Vector2i& mousePosition,
                     break;
             }
             // Stop after first button click
+            printf("returning\n");
             return lbCurrentlyOpen;
         }
     }

@@ -110,6 +110,7 @@ void renderGameWindow(sf::RenderWindow& window, Board& board, TrayGui& gui) {
     bool lbCurrentlyOpen;
     while (window.isOpen()) {
         if (lbCurrentlyOpen) {
+            lbCurrentlyOpen = false;
             continue;
         }
         sf::Event event{};
@@ -205,7 +206,7 @@ bool renderWelcomeWindow(sf::RenderWindow& window, std::string& name) {
         window.draw(nameEntryText);
         window.draw(nameEntryField);
         window.display();
-        sf::sleep(sf::seconds(1.0 / 60));
+        sf::sleep(sf::seconds(1.0f / 60));
     }
     return true;
 }

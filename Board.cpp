@@ -97,21 +97,21 @@ void Board::initializeBoard() {
         colVector.clear();
     }
 
-    for (int col = 0; col < dimensions.first; col++) {
-        for (int row = 0; row < dimensions.second; row++) {
+    for (int i = 0; i < dimensions.first; i++) {
+        for (int j = 0; j < dimensions.second; j++) {
             std::vector<Tile*> neighbors = {nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr};
-            neighbors[TOP_LEFT] = (col > 0 && row > 0) ? &board[col - 1][row - 1] : nullptr;
-            neighbors[TOP_MID] = (row > 0) ? &board[col][row - 1] : nullptr;
-            neighbors[TOP_RIGHT] = (col < dimensions.first - 1 && row > 0) ? &board[col + 1][row - 1] : nullptr;
+            neighbors[TOP_LEFT] = (i > 0 && j > 0) ? &board[i - 1][j - 1] : nullptr;
+            neighbors[TOP_MID] = (j > 0) ? &board[i][j - 1] : nullptr;
+            neighbors[TOP_RIGHT] = (i < dimensions.first - 1 && j > 0) ? &board[i + 1][j - 1] : nullptr;
             // Middle colVector
-            neighbors[MID_LEFT] = (col > 0) ? &board[col - 1][row] : nullptr;
-            neighbors[MID_RIGHT] = (col < dimensions.first - 1) ? &board[col + 1][row] : nullptr;
+            neighbors[MID_LEFT] = (i > 0) ? &board[i - 1][j] : nullptr;
+            neighbors[MID_RIGHT] = (i < dimensions.first - 1) ? &board[i + 1][j] : nullptr;
             // Bottom colVector
-            neighbors[BOT_LEFT] = (col > 0 && row < dimensions.second - 1) ? &board[col - 1][row + 1] : nullptr;
-            neighbors[BOT_MID] = (row < dimensions.second - 1) ? &board[col][row + 1] : nullptr;
-            neighbors[BOT_RIGHT] = (col < dimensions.first - 1 && row < dimensions.second - 1)
-                                   ? &board[col + 1][row + 1] : nullptr;
-            board[col][row].setNeighbors(neighbors);
+            neighbors[BOT_LEFT] = (i > 0 && j < dimensions.second - 1) ? &board[i - 1][j + 1] : nullptr;
+            neighbors[BOT_MID] = (j < dimensions.second - 1) ? &board[i][j + 1] : nullptr;
+            neighbors[BOT_RIGHT] = (i < dimensions.first - 1 && j < dimensions.second - 1)
+                                   ? &board[i + 1][j + 1] : nullptr;
+            board[i][j].setNeighbors(neighbors);
         }
     }
     populateBoard();

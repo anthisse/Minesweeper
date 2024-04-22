@@ -86,7 +86,6 @@ void Tile::setNeighbors(std::vector<Tile*>& n) {
     this->neighbors = std::move(n);
 }
 
-// TODO should be const
 void Tile::render(sf::RenderWindow& window, const std::vector<sf::Texture>& textures, const bool isPaused) {
     enum textureIndices {
         flag, num1, num2, num3, num4, num5, num6, num7, num8, mine, hidden, revealed
