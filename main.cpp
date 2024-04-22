@@ -4,6 +4,7 @@
 #include "Board.h"
 #include "TrayGui.h"
 #include "file_read_exception.h"
+#include <SFML/Config.hpp>
 
 std::vector<int> readConfig();
 

@@ -99,7 +99,8 @@ void TrayGui::render(sf::RenderWindow& window, std::vector<sf::Texture>& texture
         }
         // Convert to time format
         std::stringstream formattedTime;
-        formattedTime << std::setfill('0') << std::setw(2) << elapsedMinutes << ":" << std::setw(2) << elapsedSeconds % 60;
+        formattedTime << std::setfill('0') << std::setw(2) << elapsedMinutes << ":" << std::setw(2)
+                      << elapsedSeconds % 60;
         std::pair<std::string, std::string> entry = {formattedTime.str(), name};
         writeScore(entry);
         window.display();
@@ -240,9 +241,11 @@ bool TrayGui::click(sf::RenderWindow& window, const sf::Vector2i& mousePosition,
                     bool wasPaused;
                     wasPaused = paused;
                     // Pause the game
-                    this->paused = true;
-                    board.setPaused(true);
-                    pausedStartTime = std::chrono::high_resolution_clock::now();
+                    if (!paused) {
+                        this->paused = true;
+                        board.setPaused(true);
+                        pausedStartTime = std::chrono::high_resolution_clock::now();
+                    }
                     board.render(window, tileTextures);
                     window.display();
                     // Open leaderboard window
