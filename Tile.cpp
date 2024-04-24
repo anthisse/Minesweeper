@@ -146,6 +146,19 @@ int Tile::getNumMineNeighbors() const {
     return numMineNeighbors;
 }
 
+int Tile::getNumFlagNeighbors() const {
+    int numFlagNeighbors = 0;
+    // Count number of neighbors that are mines
+    for (const auto& neighbor: neighbors) {
+        if (neighbor) {
+            if (neighbor->isFlagged()) {
+                numFlagNeighbors++;
+            }
+        }
+    }
+    return numFlagNeighbors;
+}
+
 // Reset the Tile to a blank Tile
 void Tile::reset() {
     this->hasMine = false;

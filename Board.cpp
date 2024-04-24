@@ -224,12 +224,12 @@ void Board::moveMine(Tile& clickedTile) {
 
 // Recursive, guaranteed to be fewer calls than the size of the board
 void Board::recursiveReveal(Tile& tile) {
-    if (tile.isMine()) {
+    if (tile.isMine() || tile.isFlagged()) {
         return;
     }
     tile.setRevealed(true);
-    // Base case: Return early if there's a mine next to me
-    if (tile.getNumMineNeighbors() != 0) {
+    // Base case: Return early if there's a mine or flag next to me
+    if (tile.getNumMineNeighbors() != 0 || tile.getNumFlagNeighbors()) {
         return;
     }
 

@@ -59,6 +59,8 @@ public:
 
     int getNumMineNeighbors() const;
 
+    int getNumFlagNeighbors() const;
+
 };
 
 #endif //MINESWEEPER_TILE_H
