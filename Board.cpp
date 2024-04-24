@@ -243,7 +243,6 @@ void Board::recursiveReveal(Tile& tile) {
             continue;
         }
         neighbor->setRevealed(true);
-        neighbor->setFlagged(false);
         if (neighbor->getNumMineNeighbors() == 0) {
             recursiveReveal(*neighbor);
 
@@ -265,7 +264,7 @@ void Board::showMines() {
 void Board::render(sf::RenderWindow& window, const std::vector<sf::Texture>& textures) {
     for (auto& col: board) {
         for (auto& tile: col) {
-            tile.render(window, textures, isPaused);
+            tile.render(window, textures, isPaused, gameOver, gameWon);
         }
     }
 }

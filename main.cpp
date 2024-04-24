@@ -20,7 +20,7 @@ void renderGameWindow(sf::RenderWindow& window, Board& board, TrayGui& gui);
 
 std::vector<sf::Texture> loadTextures();
 
-int main() {
+int main(int argc, char* argv[]) {
     std::vector<int> gameParameters = readConfig();
     int colCount = gameParameters[0];
     int rowCount = gameParameters[1];

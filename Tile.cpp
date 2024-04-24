@@ -86,7 +86,8 @@ void Tile::setNeighbors(std::vector<Tile*>& n) {
     this->neighbors = std::move(n);
 }
 
-void Tile::render(sf::RenderWindow& window, const std::vector<sf::Texture>& textures, const bool isPaused) {
+void Tile::render(sf::RenderWindow& window, const std::vector<sf::Texture>& textures, const bool isPaused,
+                  const bool gameOver, const bool gameWon) {
     enum textureIndices {
         flag, num1, num2, num3, num4, num5, num6, num7, num8, mine, hidden, revealed
     };
@@ -99,13 +100,22 @@ void Tile::render(sf::RenderWindow& window, const std::vector<sf::Texture>& text
 
     // Tile background
     if (isVisible) {
-        // Revealed tile
-        drawSprite(window, textures[revealed]);
+        // Revealing tile logic
         if (hasMine) {
+            if (gameWon) {
+                drawSprite(window, textures[hidden]);
+                drawSprite(window, textures[flag]);
+                return;
+            }
+            if (hasFlag) {
+                drawSprite(window, textures[hidden]);
+                drawSprite(window, textures[flag]);
+            }
+            drawSprite(window, textures[hidden]);
             drawSprite(window, textures[mine]);
-            // .pdf guidelines say to render the flag behind the mine, but the images in the .pdf don't render the flag
-            return;  // Return early to avoid drawing numbers over the mine graphic
+            return;
         }
+        drawSprite(window, textures[revealed]);
         int numMineNeighbors = getNumMineNeighbors();
         if (numMineNeighbors != 0) { drawSprite(window, textures[numMineNeighbors]); }
 

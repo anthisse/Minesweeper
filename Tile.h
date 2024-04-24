@@ -55,7 +55,7 @@ public:
 
     void reset();
 
-    void render(sf::RenderWindow& window, const std::vector<sf::Texture>& textures, bool isPaused);
+    void render(sf::RenderWindow& window, const std::vector<sf::Texture>& textures, const bool isPaused, const bool gameOver, const bool gameWon);
 
     int getNumMineNeighbors() const;
 
