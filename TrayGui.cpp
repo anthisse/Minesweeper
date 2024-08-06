@@ -204,9 +204,8 @@ bool TrayGui::click(sf::RenderWindow& window, const sf::Vector2i& mousePosition,
     lbCurrentlyOpen = false;
     // Figure out which button was clicked
     sf::Vector2f translatedPosition = window.mapPixelToCoords(mousePosition);
-    for (unsigned i = 0; i < buttonSprites.size(); i++) {
+    for (size_t i = 0; i < buttonSprites.size(); i++) {
         if (buttonSprites[i].getGlobalBounds().contains(translatedPosition)) {
-            // No need for a default label, it's okay to do nothing
             switch (i) {
                 case face:
                     // Reset time and the board
@@ -267,11 +266,15 @@ bool TrayGui::click(sf::RenderWindow& window, const sf::Vector2i& mousePosition,
                     // Toggle debug mode
                     board.setDebug(!board.isDebugMode());
                     break;
+
+                default:
+                    break;
             }
             // Stop after first button click
             return lbCurrentlyOpen;
         }
     }
+    return lbCurrentlyOpen;
 }
 
 void TrayGui::displayLeaderboard() {

@@ -199,7 +199,7 @@ bool renderWelcomeWindow(sf::RenderWindow& window, std::string& name) {
                 name += static_cast<char>(event.text.unicode);
                 // Force title-case
                 name[0] = static_cast<char>(toupper(name[0]));
-                for (int i = 1; i < name.size(); i++) {
+                for (size_t i = 1; i < name.size(); i++) {
                     name[i] = static_cast<char>(tolower(name[i]));
                 }
                 // Render the name
